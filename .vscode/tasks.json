@@ -1,0 +1,52 @@
+{
+    "version": "2.0.0",
+  //  "command": "make",
+    "tasks": [
+        {
+            "label": "Ensamblar",
+            "type": "shell",
+            "command": "sjasmplus",
+            "args": [
+                "--lst=${fileBasenameNoExtension}.list",
+                "${fileBasename}",
+                "--sym=${fileBasenameNoExtension}.labels"
+            ],
+            "problemMatcher": {
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*)\\((\\d+)\\):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "ZEsarUX",
+            "type": "process",
+            "command": "zesarux.bat",
+            "args": [],
+            "problemMatcher": {
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*)\\((\\d+)\\):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            }
+        }
+    ]
+}

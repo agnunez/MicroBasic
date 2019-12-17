@@ -1,0 +1,35 @@
+# file opened: microbasic.asm
+ 1    0000                  DEVICE ZXSPECTRUM48
+ 2    0000                  ORG 0xF736
+ 3    F736
+ 4    F736              var01 EQU 0x5C81
+ 5    F736              var02 EQU 0x5CB0
+ 6    F736
+ 7    F736              main:
+ 8    F736
+ 9    F736              exten:
+10    F736 D7               RST 0x10
+11    F737 18 00            DEFW 0x0018
+12    F739 22 81 5C         LD (var01),HL
+13    F73C 0E 00            LD C,0
+14    F73E 21 49 F7         LD HL, stab
+15    F741 C3 47 F7         JP otrocom
+16    F744              vecin:
+17    F744 C3 48 F7         JP inter
+18    F747
+19    F747              otrocom:
+20    F747 00               NOP
+21    F748              inter:
+22    F748 00               NOP
+23    F749              stab:
+24    F749 E3 A0            DEFB 0xE3,0xA0  ; CODE "READ"
+25    F74B E5 A0            DEFB 0xE5,0xA0  ; CODE "RESTORE"
+26    F74D BF A0            DEFB 0xBF,0xA0  ; CODE "IN"
+27    F74F F3 A0            DEFB 0xF3,0xA0  ; CODE "NEXT"
+28    F751 2E 4F 4E 45      DEFB 0x2E,0x4F,0x4E,0x45,0x52,0x52,0x4F,0x52,0x3A,0xEC,0xA0   ; ".ONERROR: + CODE 'GOTO'"
+28    F755 52 52 4F 52
+28    F759 3A EC A0
+29    F75C
+30    F75C               SAVESNA "microbasic.sna", main
+31    F75C
+# file closed: microbasic.asm
