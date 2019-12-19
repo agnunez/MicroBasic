@@ -1,8 +1,9 @@
 var01: equ 0x00005C81
 var02: equ 0x00005CB0
-main: equ 0x0000F736
-exten: equ 0x0000F736
-stab: equ 0x0000F749
-otrocom: equ 0x0000F747
-vecin: equ 0x0000F744
-inter: equ 0x0000F748
+main: equ 0x0000F73C
+exten: equ 0x0000F73C
+stab: equ 0x0000F74D
+otrocom: equ 0x0000F7A5
+vecin: equ 0x0000F74A
+inter: equ 0x0000F7A6
+finstab: equ 0x0000F7A4

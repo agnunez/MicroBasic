@@ -1,35 +1,66 @@
 # file opened: microbasic.asm
- 1    0000                  DEVICE ZXSPECTRUM48
- 2    0000                  ORG 0xF736
- 3    F736
- 4    F736              var01 EQU 0x5C81
- 5    F736              var02 EQU 0x5CB0
- 6    F736
- 7    F736              main:
- 8    F736
- 9    F736              exten:
-10    F736 D7               RST 0x10
-11    F737 18 00            DEFW 0x0018
-12    F739 22 81 5C         LD (var01),HL
-13    F73C 0E 00            LD C,0
-14    F73E 21 49 F7         LD HL, stab
-15    F741 C3 47 F7         JP otrocom
-16    F744              vecin:
-17    F744 C3 48 F7         JP inter
-18    F747
-19    F747              otrocom:
-20    F747 00               NOP
-21    F748              inter:
-22    F748 00               NOP
-23    F749              stab:
-24    F749 E3 A0            DEFB 0xE3,0xA0  ; CODE "READ"
-25    F74B E5 A0            DEFB 0xE5,0xA0  ; CODE "RESTORE"
-26    F74D BF A0            DEFB 0xBF,0xA0  ; CODE "IN"
-27    F74F F3 A0            DEFB 0xF3,0xA0  ; CODE "NEXT"
-28    F751 2E 4F 4E 45      DEFB 0x2E,0x4F,0x4E,0x45,0x52,0x52,0x4F,0x52,0x3A,0xEC,0xA0   ; ".ONERROR: + CODE 'GOTO'"
-28    F755 52 52 4F 52
-28    F759 3A EC A0
-29    F75C
-30    F75C               SAVESNA "microbasic.sna", main
-31    F75C
+ 1    0000              ; From the book "Interface 1 and Microdrive Programmin (Spanish)"
+ 2    0000              ; Written August 1983. Book Published 1984 under (c) Anaya Multimedia SA. ISBN 84-7614-038-X
+ 3    0000              ; Author: Agustin Nunez @agnuca https://github.com/agnunez/MicroBasic
+ 4    0000              ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
+ 5    0000
+ 6    0000                  DEVICE ZXSPECTRUM48
+ 7    0000                  ORG 0xF73C
+ 8    F73C              var01 EQU 0x5C81
+ 9    F73C              var02 EQU 0x5CB0
+10    F73C              main:
+11    F73C              exten:
+12    F73C D7               RST 0x10
+13    F73D 18 00            DEFW 0x0018
+14    F73F 22 81 5C         LD (var01),HL
+15    F742 0E 00            LD C,0
+16    F744 21 4D F7         LD HL, stab
+17    F747 C3 A5 F7         JP otrocom
+18    F74A              vecin:
+19    F74A C3 A6 F7         JP inter
+20    F74D              stab:
+21    F74D E3 A0            DEFB 0xE3,0xA0              ; CODE "READ"
+22    F74F E5 A0            DEFB 0xE5,0xA0              ; CODE "RESTORE"
+23    F751 BF A0            DEFB 0xBF,0xA0              ; CODE "IN"
+24    F753 F3 A0            DEFB 0xF3,0xA0              ; CODE "NEXT"
+25    F755 2E 4F 4E 45      DEFB ".ONERROR:",0xEC,0xA0  ; + CODE 'GOTO'"
+25    F759 52 52 4F 52
+25    F75D 3A EC A0
+26    F760 2E 4F 46 46      DEFB ".OFFERROR",0xA0
+26    F764 45 52 52 4F
+26    F768 52 A0
+27    F76A 2E 52 45 4E      DEFB ".REN",0xA0
+27    F76E A0
+28    F76F 2E 4E 45 57      DEFB ".NEW",0xA0
+28    F773 A0
+29    F774 2E 54 52 46      DEFB ".TRF",0xA0
+29    F778 A0
+30    F779 2E 44 45 4C      DEFB ".DEL",0xA0
+30    F77D A0
+31    F77E 2E 46 4E 44      DEFB ".FND",0xA0
+31    F782 A0
+32    F783 2E 43 48 41      DEFB ".CHA",0xA0
+32    F787 A0
+33    F788 2E 41 4F 46      DEFB ".AOF",0xA0
+33    F78C A0
+34    F78D 2E 41 4F 4E      DEFB ".AON",0xA0
+34    F791 A0
+35    F792 AA A0            DEFB 0xAA,0xA0 ; CODE "SCREEN$"
+36    F794 C3 A0            DEFB 0xC3,0xA0 ; CODE "NOT"  (SAVE)
+37    F796 2D A0            DEFB 0x2D,0xA0 ; CODE "-"    (LOAD)
+38    F798 3C A0            DEFB 0x3C,0xA0 ; CODE "<"    (VERIFY)
+39    F79A 3E A0            DEFB 0x3E,0xA0 ; CODE ">"    (MERGE)
+40    F79C 26 A0            DEFB 0x26,0xA0 ; CODE "&"    (MOVE)
+41    F79E 27 A0            DEFB 0x27,0xA0 ; CODE "'"    (ERASE)
+42    F7A0 5F A0            DEFB 0x5F,0xA0 ; CODE "_"    (FORMAT)
+43    F7A2 24 A0            DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
+44    F7A4              finstab:
+45    F7A4 FF               DEFB 0xFF      ; End of command table
+46    F7A5              otrocom:
+47    F7A5 00               NOP
+48    F7A6              inter:
+49    F7A6 00               NOP
+50    F7A7
+51    F7A7               SAVESNA "microbasic.sna", main
+52    F7A7
 # file closed: microbasic.asm
