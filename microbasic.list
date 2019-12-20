@@ -1,66 +1,166 @@
 # file opened: microbasic.asm
- 1    0000              ; From the book "Interface 1 and Microdrive Programmin (Spanish)"
- 2    0000              ; Written August 1983. Book Published 1984 under (c) Anaya Multimedia SA. ISBN 84-7614-038-X
- 3    0000              ; Author: Agustin Nunez @agnuca https://github.com/agnunez/MicroBasic
- 4    0000              ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
- 5    0000
- 6    0000                  DEVICE ZXSPECTRUM48
- 7    0000                  ORG 0xF73C
- 8    F73C              var01 EQU 0x5C81
- 9    F73C              var02 EQU 0x5CB0
-10    F73C              main:
-11    F73C              exten:
-12    F73C D7               RST 0x10
-13    F73D 18 00            DEFW 0x0018
-14    F73F 22 81 5C         LD (var01),HL
-15    F742 0E 00            LD C,0
-16    F744 21 4D F7         LD HL, stab
-17    F747 C3 A5 F7         JP otrocom
-18    F74A              vecin:
-19    F74A C3 A6 F7         JP inter
-20    F74D              stab:
-21    F74D E3 A0            DEFB 0xE3,0xA0              ; CODE "READ"
-22    F74F E5 A0            DEFB 0xE5,0xA0              ; CODE "RESTORE"
-23    F751 BF A0            DEFB 0xBF,0xA0              ; CODE "IN"
-24    F753 F3 A0            DEFB 0xF3,0xA0              ; CODE "NEXT"
-25    F755 2E 4F 4E 45      DEFB ".ONERROR:",0xEC,0xA0  ; + CODE 'GOTO'"
-25    F759 52 52 4F 52
-25    F75D 3A EC A0
-26    F760 2E 4F 46 46      DEFB ".OFFERROR",0xA0
-26    F764 45 52 52 4F
-26    F768 52 A0
-27    F76A 2E 52 45 4E      DEFB ".REN",0xA0
-27    F76E A0
-28    F76F 2E 4E 45 57      DEFB ".NEW",0xA0
-28    F773 A0
-29    F774 2E 54 52 46      DEFB ".TRF",0xA0
-29    F778 A0
-30    F779 2E 44 45 4C      DEFB ".DEL",0xA0
-30    F77D A0
-31    F77E 2E 46 4E 44      DEFB ".FND",0xA0
-31    F782 A0
-32    F783 2E 43 48 41      DEFB ".CHA",0xA0
-32    F787 A0
-33    F788 2E 41 4F 46      DEFB ".AOF",0xA0
-33    F78C A0
-34    F78D 2E 41 4F 4E      DEFB ".AON",0xA0
-34    F791 A0
-35    F792 AA A0            DEFB 0xAA,0xA0 ; CODE "SCREEN$"
-36    F794 C3 A0            DEFB 0xC3,0xA0 ; CODE "NOT"  (SAVE)
-37    F796 2D A0            DEFB 0x2D,0xA0 ; CODE "-"    (LOAD)
-38    F798 3C A0            DEFB 0x3C,0xA0 ; CODE "<"    (VERIFY)
-39    F79A 3E A0            DEFB 0x3E,0xA0 ; CODE ">"    (MERGE)
-40    F79C 26 A0            DEFB 0x26,0xA0 ; CODE "&"    (MOVE)
-41    F79E 27 A0            DEFB 0x27,0xA0 ; CODE "'"    (ERASE)
-42    F7A0 5F A0            DEFB 0x5F,0xA0 ; CODE "_"    (FORMAT)
-43    F7A2 24 A0            DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
-44    F7A4              finstab:
-45    F7A4 FF               DEFB 0xFF      ; End of command table
-46    F7A5              otrocom:
-47    F7A5 00               NOP
-48    F7A6              inter:
-49    F7A6 00               NOP
-50    F7A7
-51    F7A7               SAVESNA "microbasic.sna", main
-52    F7A7
+  1   0000              ; From the book "Interface 1 and Microdrive Programmin (Spanish)"
+  2   0000              ; Written August 1983. Book Published 1984 under (c) Anaya Multimedia SA. ISBN 84-7614-038-X
+  3   0000              ; Author: Agustin Nunez @agnuca https://github.com/agnunez/MicroBasic
+  4   0000              ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
+  5   0000
+  6   0000                  DEVICE ZXSPECTRUM48
+  7   0000                  ORG 0xF73C
+  8   F73C              var01 EQU 0x5C81
+  9   F73C              var02 EQU 0x5CB0
+ 10   F73C              inichad EQU 0x5C5D
+ 11   F73C              main:
+ 12   F73C              exten:
+ 13   F73C D7               RST 0x10
+ 14   F73D 18 00            DEFW 0x0018
+ 15   F73F 22 81 5C         LD (var01),HL
+ 16   F742 0E 00            LD C,0
+ 17   F744 21 4D F7         LD HL, stab
+ 18   F747 C3 23 F8         JP otrocom
+ 19   F74A              vecin:
+ 20   F74A C3 23 F8         JP inter
+ 21   F74D              stab:
+ 22   F74D E3 A0            DEFB 0xE3,0xA0              ; CODE "READ"
+ 23   F74F E5 A0            DEFB 0xE5,0xA0              ; CODE "RESTORE"
+ 24   F751 BF A0            DEFB 0xBF,0xA0              ; CODE "IN"
+ 25   F753 F3 A0            DEFB 0xF3,0xA0              ; CODE "NEXT"
+ 26   F755 2E 4F 4E 45      DEFB ".ONERROR:",0xEC,0xA0  ; + CODE 'GOTO'"
+ 26   F759 52 52 4F 52
+ 26   F75D 3A EC A0
+ 27   F760 2E 4F 46 46      DEFB ".OFFERROR",0xA0
+ 27   F764 45 52 52 4F
+ 27   F768 52 A0
+ 28   F76A 2E 52 45 4E      DEFB ".REN",0xA0
+ 28   F76E A0
+ 29   F76F 2E 4E 45 57      DEFB ".NEW",0xA0
+ 29   F773 A0
+ 30   F774 2E 54 52 46      DEFB ".TRF",0xA0
+ 30   F778 A0
+ 31   F779 2E 44 45 4C      DEFB ".DEL",0xA0
+ 31   F77D A0
+ 32   F77E 2E 46 4E 44      DEFB ".FND",0xA0
+ 32   F782 A0
+ 33   F783 2E 43 48 41      DEFB ".CHA",0xA0
+ 33   F787 A0
+ 34   F788 2E 41 4F 46      DEFB ".AOF",0xA0
+ 34   F78C A0
+ 35   F78D 2E 41 4F 4E      DEFB ".AON",0xA0
+ 35   F791 A0
+ 36   F792 AA A0            DEFB 0xAA,0xA0 ; CODE "SCREEN$"
+ 37   F794 C3 A0            DEFB 0xC3,0xA0 ; CODE "NOT"  (SAVE)
+ 38   F796 2D A0            DEFB 0x2D,0xA0 ; CODE "-"    (LOAD)
+ 39   F798 3C A0            DEFB 0x3C,0xA0 ; CODE "<"    (VERIFY)
+ 40   F79A 3E A0            DEFB 0x3E,0xA0 ; CODE ">"    (MERGE)
+ 41   F79C 26 A0            DEFB 0x26,0xA0 ; CODE "&"    (MOVE)
+ 42   F79E 27 A0            DEFB 0x27,0xA0 ; CODE "'"    (ERASE)
+ 43   F7A0 5F A0            DEFB 0x5F,0xA0 ; CODE "_"    (FORMAT)
+ 44   F7A2 24 A0            DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
+ 45   F7A4              finstab:
+ 46   F7A4 FF               DEFB 0xFF      ; End of command table
+ 47   F7A5 00 00 00 00      DEFB 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Filler
+ 47   F7A9 00 00 00 00
+ 48   F7AD              rtab:             ; command code start address table
+ 49   F7AD 23 F8            DEFW comm
+ 50   F7AF 23 F8            DEFW comm
+ 51   F7B1 23 F8            DEFW comm
+ 52   F7B3 23 F8            DEFW nexts
+ 53   F7B5 23 F8            DEFW roner
+ 54   F7B7 23 F8            DEFW offer
+ 55   F7B9 23 F8            DEFW rren
+ 56   F7BB 23 F8            DEFW rnew
+ 57   F7BD 23 F8            DEFW rtr
+ 58   F7BF 23 F8            DEFW rren
+ 59   F7C1 23 F8            DEFW rfnd
+ 60   F7C3 23 F8            DEFW rcha
+ 61   F7C5 23 F8            DEFW raof
+ 62   F7C7 23 F8            DEFW raon
+ 63   F7C9 23 F8            DEFW rcopy
+ 64   F7CB 23 F8            DEFW rsave
+ 65   F7CD 23 F8            DEFW rload
+ 66   F7CF 23 F8            DEFW rvery
+ 67   F7D1 23 F8            DEFW rmerg
+ 68   F7D3 23 F8            DEFW rmove
+ 69   F7D5 23 F8            DEFW reras
+ 70   F7D7 23 F8            DEFW rform
+ 71   F7D9              finrtab
+ 72   F7D9 23 F8            DEFW ropen
+ 73   F7DB              rlibre:
+ 74   F7DB 00 00 00 00      DEFB 0x0,0x0,0x0,0x0
+ 75   F7DF              other:
+ 76   F7DF C5               PUSH BC
+ 77   F7E0 E5               PUSH HL
+ 78   F7E1 D7               RST 0x10
+ 79   F7E2 14 00            DEFW 0020
+ 80   F7E4 E1               POP HL
+ 81   F7E5 C1               POP BC
+ 82   F7E6              othcm:
+ 83   F7E6 46               LD B,(HL)
+ 84   F7E7 B8               CP B
+ 85   F7E8 28 39            JR Z, mat1
+ 86   F7EA 47               LD B,A
+ 87   F7EB              nmat1:
+ 88   F7EB 23               INC HL
+ 89   F7EC 7E               LD A,(HL)
+ 90   F7ED FE FF            CP 0xFF
+ 91   F7EF 28 14            JR Z, taber
+ 92   F7F1 FE A0            CP 0xA0
+ 93   F7F3 20 F6            JR NZ, nmat1
+ 94   F7F5 23               INC HL
+ 95   F7F6 78               LD A,B
+ 96   F7F7 E5               PUSH HL
+ 97   F7F8 2A 81 5C         LD HL,(var01)
+ 98   F7FB 22 5D 5C         LD (inichad),HL
+ 99   F7FE D7               RST 0x10
+100   F7FF 18 00            DEFW 0x0018
+101   F801 E1               POP HL
+102   F802 0C               INC C
+103   F803 18 E1            JR othcm
+104   F805              taber:
+105   F805 C3 F0 01         JP 0x01F0
+106   F808 47               LD B,A
+107   F809 23               INC HL
+108   F80A 7E               LD A, (HL)
+109   F80B FE A0            CP 0xA0
+110   F80D 28 02            JR Z, found
+111   F80F 18 CE            JR other
+112   F811              found:
+113   F811 79               LD A,C
+114   F812 21 AD F7         LD HL, rtab
+115   F815 CB 21            SLA C
+116   F817 59               LD E,C
+117   F818 16 00            LD D,0x0
+118   F81A 19               ADD HL, DE
+119   F81B 5E               LD E, (HL)
+120   F81C 23               INC HL
+121   F81D 56               LD D,(HL)
+122   F81E EB               EX DE,HL
+123   F81F 32 B0 5C         LD (var02),A
+124   F822 E9               JP (HL)
+125   F823
+126   F823              mat1:
+127   F823              comm:
+128   F823              nexts:
+129   F823              roner:
+130   F823              offer:
+131   F823              rren:
+132   F823              rnew:
+133   F823              rtr:
+134   F823              rfnd:
+135   F823              rcha:
+136   F823              raof:
+137   F823              raon:
+138   F823              rcopy:
+139   F823              rsave:
+140   F823              rload:
+141   F823              rvery:
+142   F823              rmerg:
+143   F823              rmove:
+144   F823              reras:
+145   F823              rform:
+146   F823              ropen:
+147   F823              otrocom:
+148   F823              inter:
+149   F823
+150   F823               SAVESNA "microbasic.sna", main
+151   F823
 # file closed: microbasic.asm

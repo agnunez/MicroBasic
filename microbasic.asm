@@ -7,6 +7,7 @@
     ORG 0xF73C
 var01 EQU 0x5C81
 var02 EQU 0x5CB0
+inichad EQU 0x5C5D
 main:
 exten:
     RST 0x10
@@ -43,10 +44,108 @@ stab:
     DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
 finstab: 
     DEFB 0xFF      ; End of command table
+    DEFB 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Filler
+rtab:             ; command code start address table
+    DEFW comm
+    DEFW comm
+    DEFW comm
+    DEFW nexts
+    DEFW roner
+    DEFW offer
+    DEFW rren
+    DEFW rnew
+    DEFW rtr
+    DEFW rren
+    DEFW rfnd
+    DEFW rcha
+    DEFW raof
+    DEFW raon
+    DEFW rcopy
+    DEFW rsave
+    DEFW rload
+    DEFW rvery
+    DEFW rmerg
+    DEFW rmove
+    DEFW reras
+    DEFW rform
+finrtab
+    DEFW ropen
+rlibre: 
+    DEFB 0x0,0x0,0x0,0x0
+other:
+    PUSH BC
+    PUSH HL
+    RST 0x10
+    DEFW 0020
+    POP HL
+    POP BC
+othcm:
+    LD B,(HL)
+    CP B
+    JR Z, mat1
+    LD B,A
+nmat1:
+    INC HL
+    LD A,(HL)
+    CP 0xFF
+    JR Z, taber
+    CP 0xA0
+    JR NZ, nmat1
+    INC HL
+    LD A,B
+    PUSH HL
+    LD HL,(var01)
+    LD (inichad),HL
+    RST 0x10
+    DEFW 0x0018
+    POP HL
+    INC C
+    JR othcm
+taber:
+    JP 0x01F0
+    LD B,A
+    INC HL
+    LD A, (HL)
+    CP 0xA0
+    JR Z, found
+    JR other
+found: 
+    LD A,C
+    LD HL, rtab
+    SLA C
+    LD E,C
+    LD D,0x0
+    ADD HL, DE
+    LD E, (HL)
+    INC HL
+    LD D,(HL)
+    EX DE,HL
+    LD (var02),A
+    JP (HL)
+
+mat1:
+comm:
+nexts:
+roner:
+offer:
+rren:
+rnew:
+rtr:
+rfnd:
+rcha:
+raof:
+raon:
+rcopy:
+rsave:
+rload:
+rvery:
+rmerg:
+rmove:
+reras:
+rform:
+ropen:
 otrocom:
-    NOP
 inter:
-    NOP
 
  SAVESNA "microbasic.sna", main
 
