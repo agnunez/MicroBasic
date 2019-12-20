@@ -14,7 +14,7 @@ nexts: equ 0x0000F823
 roner: equ 0x0000F823
 offer: equ 0x0000F823
 rren: equ 0x0000F823
-rnew: equ 0x0000F823
+rnew: equ 0x0000FA32
 rtr: equ 0x0000F823
 rfnd: equ 0x0000F823
 rcha: equ 0x0000F823
@@ -37,3 +37,9 @@ mat1: equ 0x0000F823
 nmat1: equ 0x0000F7EB
 taber: equ 0x0000F805
 found: equ 0x0000F811
+new: equ 0x0000FA41
+retu: equ 0x0000FA3B
+rtu: equ 0x0000FA5F
+retv: equ 0x0000FA3E
+rtv: equ 0x0000FA7B
+pomsg: equ 0x0000FD89

@@ -4,7 +4,9 @@
 ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
 
     DEVICE ZXSPECTRUM48
-    ORG 0xF73C
+;    ORG 0xF700
+;    JP 0xFA32
+    ORG 0xF73C   ; Load binary in 63292
 var01 EQU 0x5C81
 var02 EQU 0x5CB0
 inichad EQU 0x5C5D
@@ -129,7 +131,6 @@ nexts:
 roner:
 offer:
 rren:
-rnew:
 rtr:
 rfnd:
 rcha:
@@ -147,5 +148,65 @@ ropen:
 otrocom:
 inter:
 
+    ORG 0xFA32
+rnew:
+    RST 0x10
+    DEFW 0x0020     ; Increment CHADD
+    CALL 0x05B7       ; Exit edit
+    RST 0x010
+    DEFW new        ; Call NEW in ROM1
+retu:
+    JP rtu
+retv:
+    JP rtv
+new:
+    LD DE, 0xFF58   ; USR"a" address
+    LD HL, 0x11B7   ; NEW ROM1 1st routine block
+    LD BC, 0x0047   ; transfer 0x47 bytes 1st segment
+    LDIR
+    LD HL, 0x1219   ; NEW ROM1 second block
+    LD BC, 0x005D   ; transfer 0x5D bytes
+    LDIR
+    LD HL, retu
+    LD BC, 0x03      ; transfer 3 bytes 
+    LDIR
+    JP 0xFF58       ; execute 1st block
+rtu:
+    LD DE, 0xFF58
+    LD HL ,0x1276
+    LD BC, 0x002A
+    LDIR
+    LD HL, retv
+    LD BC, 0x03
+    LDIR
+    LD HL, pomsg
+    LD (0xFF79),HL
+    JP 0xFF58
+rtv:
+    RST 0x08
+    DEFB 0x31
+    LD HL, exten
+    LD (0x5CB7),HL
+    LD HL, 0xFFFF
+    LD DE, 0x3EAF
+    LD BC,0x00A0
+    EX DE,HL
+    LDDR
+    LD A,(0x5C6A)
+    SET 3,A
+    LD (0x5C6A),A
+    LD A,0x58
+    LD (0x5CB1),A
+    JP 0x12A9
+
+; to be continued
+
+    ORG 0xFD89
+pomsg:
+    DEFB 0xA0
+    DEFB "Micro Basic O.S. ANC SPAIN "
+    DEFB 0x7F
+    DEFB "198"
+    DEFB 0xB4
  SAVESNA "microbasic.sna", main
 

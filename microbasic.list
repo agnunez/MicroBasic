@@ -5,162 +5,229 @@
   4   0000              ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
   5   0000
   6   0000                  DEVICE ZXSPECTRUM48
-  7   0000                  ORG 0xF73C
-  8   F73C              var01 EQU 0x5C81
-  9   F73C              var02 EQU 0x5CB0
- 10   F73C              inichad EQU 0x5C5D
- 11   F73C              main:
- 12   F73C              exten:
- 13   F73C D7               RST 0x10
- 14   F73D 18 00            DEFW 0x0018
- 15   F73F 22 81 5C         LD (var01),HL
- 16   F742 0E 00            LD C,0
- 17   F744 21 4D F7         LD HL, stab
- 18   F747 C3 23 F8         JP otrocom
- 19   F74A              vecin:
- 20   F74A C3 23 F8         JP inter
- 21   F74D              stab:
- 22   F74D E3 A0            DEFB 0xE3,0xA0              ; CODE "READ"
- 23   F74F E5 A0            DEFB 0xE5,0xA0              ; CODE "RESTORE"
- 24   F751 BF A0            DEFB 0xBF,0xA0              ; CODE "IN"
- 25   F753 F3 A0            DEFB 0xF3,0xA0              ; CODE "NEXT"
- 26   F755 2E 4F 4E 45      DEFB ".ONERROR:",0xEC,0xA0  ; + CODE 'GOTO'"
- 26   F759 52 52 4F 52
- 26   F75D 3A EC A0
- 27   F760 2E 4F 46 46      DEFB ".OFFERROR",0xA0
- 27   F764 45 52 52 4F
- 27   F768 52 A0
- 28   F76A 2E 52 45 4E      DEFB ".REN",0xA0
- 28   F76E A0
- 29   F76F 2E 4E 45 57      DEFB ".NEW",0xA0
- 29   F773 A0
- 30   F774 2E 54 52 46      DEFB ".TRF",0xA0
- 30   F778 A0
- 31   F779 2E 44 45 4C      DEFB ".DEL",0xA0
- 31   F77D A0
- 32   F77E 2E 46 4E 44      DEFB ".FND",0xA0
- 32   F782 A0
- 33   F783 2E 43 48 41      DEFB ".CHA",0xA0
- 33   F787 A0
- 34   F788 2E 41 4F 46      DEFB ".AOF",0xA0
- 34   F78C A0
- 35   F78D 2E 41 4F 4E      DEFB ".AON",0xA0
- 35   F791 A0
- 36   F792 AA A0            DEFB 0xAA,0xA0 ; CODE "SCREEN$"
- 37   F794 C3 A0            DEFB 0xC3,0xA0 ; CODE "NOT"  (SAVE)
- 38   F796 2D A0            DEFB 0x2D,0xA0 ; CODE "-"    (LOAD)
- 39   F798 3C A0            DEFB 0x3C,0xA0 ; CODE "<"    (VERIFY)
- 40   F79A 3E A0            DEFB 0x3E,0xA0 ; CODE ">"    (MERGE)
- 41   F79C 26 A0            DEFB 0x26,0xA0 ; CODE "&"    (MOVE)
- 42   F79E 27 A0            DEFB 0x27,0xA0 ; CODE "'"    (ERASE)
- 43   F7A0 5F A0            DEFB 0x5F,0xA0 ; CODE "_"    (FORMAT)
- 44   F7A2 24 A0            DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
- 45   F7A4              finstab:
- 46   F7A4 FF               DEFB 0xFF      ; End of command table
- 47   F7A5 00 00 00 00      DEFB 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Filler
- 47   F7A9 00 00 00 00
- 48   F7AD              rtab:             ; command code start address table
- 49   F7AD 23 F8            DEFW comm
- 50   F7AF 23 F8            DEFW comm
- 51   F7B1 23 F8            DEFW comm
- 52   F7B3 23 F8            DEFW nexts
- 53   F7B5 23 F8            DEFW roner
- 54   F7B7 23 F8            DEFW offer
- 55   F7B9 23 F8            DEFW rren
- 56   F7BB 23 F8            DEFW rnew
- 57   F7BD 23 F8            DEFW rtr
- 58   F7BF 23 F8            DEFW rren
- 59   F7C1 23 F8            DEFW rfnd
- 60   F7C3 23 F8            DEFW rcha
- 61   F7C5 23 F8            DEFW raof
- 62   F7C7 23 F8            DEFW raon
- 63   F7C9 23 F8            DEFW rcopy
- 64   F7CB 23 F8            DEFW rsave
- 65   F7CD 23 F8            DEFW rload
- 66   F7CF 23 F8            DEFW rvery
- 67   F7D1 23 F8            DEFW rmerg
- 68   F7D3 23 F8            DEFW rmove
- 69   F7D5 23 F8            DEFW reras
- 70   F7D7 23 F8            DEFW rform
- 71   F7D9              finrtab
- 72   F7D9 23 F8            DEFW ropen
- 73   F7DB              rlibre:
- 74   F7DB 00 00 00 00      DEFB 0x0,0x0,0x0,0x0
- 75   F7DF              other:
- 76   F7DF C5               PUSH BC
- 77   F7E0 E5               PUSH HL
- 78   F7E1 D7               RST 0x10
- 79   F7E2 14 00            DEFW 0020
- 80   F7E4 E1               POP HL
- 81   F7E5 C1               POP BC
- 82   F7E6              othcm:
- 83   F7E6 46               LD B,(HL)
- 84   F7E7 B8               CP B
- 85   F7E8 28 39            JR Z, mat1
- 86   F7EA 47               LD B,A
- 87   F7EB              nmat1:
- 88   F7EB 23               INC HL
- 89   F7EC 7E               LD A,(HL)
- 90   F7ED FE FF            CP 0xFF
- 91   F7EF 28 14            JR Z, taber
- 92   F7F1 FE A0            CP 0xA0
- 93   F7F3 20 F6            JR NZ, nmat1
- 94   F7F5 23               INC HL
- 95   F7F6 78               LD A,B
- 96   F7F7 E5               PUSH HL
- 97   F7F8 2A 81 5C         LD HL,(var01)
- 98   F7FB 22 5D 5C         LD (inichad),HL
- 99   F7FE D7               RST 0x10
-100   F7FF 18 00            DEFW 0x0018
-101   F801 E1               POP HL
-102   F802 0C               INC C
-103   F803 18 E1            JR othcm
-104   F805              taber:
-105   F805 C3 F0 01         JP 0x01F0
-106   F808 47               LD B,A
-107   F809 23               INC HL
-108   F80A 7E               LD A, (HL)
-109   F80B FE A0            CP 0xA0
-110   F80D 28 02            JR Z, found
-111   F80F 18 CE            JR other
-112   F811              found:
-113   F811 79               LD A,C
-114   F812 21 AD F7         LD HL, rtab
-115   F815 CB 21            SLA C
-116   F817 59               LD E,C
-117   F818 16 00            LD D,0x0
-118   F81A 19               ADD HL, DE
-119   F81B 5E               LD E, (HL)
-120   F81C 23               INC HL
-121   F81D 56               LD D,(HL)
-122   F81E EB               EX DE,HL
-123   F81F 32 B0 5C         LD (var02),A
-124   F822 E9               JP (HL)
-125   F823
-126   F823              mat1:
-127   F823              comm:
-128   F823              nexts:
-129   F823              roner:
-130   F823              offer:
-131   F823              rren:
-132   F823              rnew:
-133   F823              rtr:
-134   F823              rfnd:
-135   F823              rcha:
-136   F823              raof:
-137   F823              raon:
-138   F823              rcopy:
-139   F823              rsave:
-140   F823              rload:
-141   F823              rvery:
-142   F823              rmerg:
-143   F823              rmove:
-144   F823              reras:
-145   F823              rform:
-146   F823              ropen:
-147   F823              otrocom:
-148   F823              inter:
-149   F823
-150   F823               SAVESNA "microbasic.sna", main
-151   F823
+  7   0000              ;    ORG 0xF700
+  8   0000              ;    JP 0xFA32
+  9   0000                  ORG 0xF73C   ; Load binary in 63292
+ 10   F73C              var01 EQU 0x5C81
+ 11   F73C              var02 EQU 0x5CB0
+ 12   F73C              inichad EQU 0x5C5D
+ 13   F73C              main:
+ 14   F73C              exten:
+ 15   F73C D7               RST 0x10
+ 16   F73D 18 00            DEFW 0x0018
+ 17   F73F 22 81 5C         LD (var01),HL
+ 18   F742 0E 00            LD C,0
+ 19   F744 21 4D F7         LD HL, stab
+ 20   F747 C3 23 F8         JP otrocom
+ 21   F74A              vecin:
+ 22   F74A C3 23 F8         JP inter
+ 23   F74D              stab:
+ 24   F74D E3 A0            DEFB 0xE3,0xA0              ; CODE "READ"
+ 25   F74F E5 A0            DEFB 0xE5,0xA0              ; CODE "RESTORE"
+ 26   F751 BF A0            DEFB 0xBF,0xA0              ; CODE "IN"
+ 27   F753 F3 A0            DEFB 0xF3,0xA0              ; CODE "NEXT"
+ 28   F755 2E 4F 4E 45      DEFB ".ONERROR:",0xEC,0xA0  ; + CODE 'GOTO'"
+ 28   F759 52 52 4F 52
+ 28   F75D 3A EC A0
+ 29   F760 2E 4F 46 46      DEFB ".OFFERROR",0xA0
+ 29   F764 45 52 52 4F
+ 29   F768 52 A0
+ 30   F76A 2E 52 45 4E      DEFB ".REN",0xA0
+ 30   F76E A0
+ 31   F76F 2E 4E 45 57      DEFB ".NEW",0xA0
+ 31   F773 A0
+ 32   F774 2E 54 52 46      DEFB ".TRF",0xA0
+ 32   F778 A0
+ 33   F779 2E 44 45 4C      DEFB ".DEL",0xA0
+ 33   F77D A0
+ 34   F77E 2E 46 4E 44      DEFB ".FND",0xA0
+ 34   F782 A0
+ 35   F783 2E 43 48 41      DEFB ".CHA",0xA0
+ 35   F787 A0
+ 36   F788 2E 41 4F 46      DEFB ".AOF",0xA0
+ 36   F78C A0
+ 37   F78D 2E 41 4F 4E      DEFB ".AON",0xA0
+ 37   F791 A0
+ 38   F792 AA A0            DEFB 0xAA,0xA0 ; CODE "SCREEN$"
+ 39   F794 C3 A0            DEFB 0xC3,0xA0 ; CODE "NOT"  (SAVE)
+ 40   F796 2D A0            DEFB 0x2D,0xA0 ; CODE "-"    (LOAD)
+ 41   F798 3C A0            DEFB 0x3C,0xA0 ; CODE "<"    (VERIFY)
+ 42   F79A 3E A0            DEFB 0x3E,0xA0 ; CODE ">"    (MERGE)
+ 43   F79C 26 A0            DEFB 0x26,0xA0 ; CODE "&"    (MOVE)
+ 44   F79E 27 A0            DEFB 0x27,0xA0 ; CODE "'"    (ERASE)
+ 45   F7A0 5F A0            DEFB 0x5F,0xA0 ; CODE "_"    (FORMAT)
+ 46   F7A2 24 A0            DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
+ 47   F7A4              finstab:
+ 48   F7A4 FF               DEFB 0xFF      ; End of command table
+ 49   F7A5 00 00 00 00      DEFB 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Filler
+ 49   F7A9 00 00 00 00
+ 50   F7AD              rtab:             ; command code start address table
+ 51   F7AD 23 F8            DEFW comm
+ 52   F7AF 23 F8            DEFW comm
+ 53   F7B1 23 F8            DEFW comm
+ 54   F7B3 23 F8            DEFW nexts
+ 55   F7B5 23 F8            DEFW roner
+ 56   F7B7 23 F8            DEFW offer
+ 57   F7B9 23 F8            DEFW rren
+ 58   F7BB 32 FA            DEFW rnew
+ 59   F7BD 23 F8            DEFW rtr
+ 60   F7BF 23 F8            DEFW rren
+ 61   F7C1 23 F8            DEFW rfnd
+ 62   F7C3 23 F8            DEFW rcha
+ 63   F7C5 23 F8            DEFW raof
+ 64   F7C7 23 F8            DEFW raon
+ 65   F7C9 23 F8            DEFW rcopy
+ 66   F7CB 23 F8            DEFW rsave
+ 67   F7CD 23 F8            DEFW rload
+ 68   F7CF 23 F8            DEFW rvery
+ 69   F7D1 23 F8            DEFW rmerg
+ 70   F7D3 23 F8            DEFW rmove
+ 71   F7D5 23 F8            DEFW reras
+ 72   F7D7 23 F8            DEFW rform
+ 73   F7D9              finrtab
+ 74   F7D9 23 F8            DEFW ropen
+ 75   F7DB              rlibre:
+ 76   F7DB 00 00 00 00      DEFB 0x0,0x0,0x0,0x0
+ 77   F7DF              other:
+ 78   F7DF C5               PUSH BC
+ 79   F7E0 E5               PUSH HL
+ 80   F7E1 D7               RST 0x10
+ 81   F7E2 14 00            DEFW 0020
+ 82   F7E4 E1               POP HL
+ 83   F7E5 C1               POP BC
+ 84   F7E6              othcm:
+ 85   F7E6 46               LD B,(HL)
+ 86   F7E7 B8               CP B
+ 87   F7E8 28 39            JR Z, mat1
+ 88   F7EA 47               LD B,A
+ 89   F7EB              nmat1:
+ 90   F7EB 23               INC HL
+ 91   F7EC 7E               LD A,(HL)
+ 92   F7ED FE FF            CP 0xFF
+ 93   F7EF 28 14            JR Z, taber
+ 94   F7F1 FE A0            CP 0xA0
+ 95   F7F3 20 F6            JR NZ, nmat1
+ 96   F7F5 23               INC HL
+ 97   F7F6 78               LD A,B
+ 98   F7F7 E5               PUSH HL
+ 99   F7F8 2A 81 5C         LD HL,(var01)
+100   F7FB 22 5D 5C         LD (inichad),HL
+101   F7FE D7               RST 0x10
+102   F7FF 18 00            DEFW 0x0018
+103   F801 E1               POP HL
+104   F802 0C               INC C
+105   F803 18 E1            JR othcm
+106   F805              taber:
+107   F805 C3 F0 01         JP 0x01F0
+108   F808 47               LD B,A
+109   F809 23               INC HL
+110   F80A 7E               LD A, (HL)
+111   F80B FE A0            CP 0xA0
+112   F80D 28 02            JR Z, found
+113   F80F 18 CE            JR other
+114   F811              found:
+115   F811 79               LD A,C
+116   F812 21 AD F7         LD HL, rtab
+117   F815 CB 21            SLA C
+118   F817 59               LD E,C
+119   F818 16 00            LD D,0x0
+120   F81A 19               ADD HL, DE
+121   F81B 5E               LD E, (HL)
+122   F81C 23               INC HL
+123   F81D 56               LD D,(HL)
+124   F81E EB               EX DE,HL
+125   F81F 32 B0 5C         LD (var02),A
+126   F822 E9               JP (HL)
+127   F823
+128   F823              mat1:
+129   F823              comm:
+130   F823              nexts:
+131   F823              roner:
+132   F823              offer:
+133   F823              rren:
+134   F823              rtr:
+135   F823              rfnd:
+136   F823              rcha:
+137   F823              raof:
+138   F823              raon:
+139   F823              rcopy:
+140   F823              rsave:
+141   F823              rload:
+142   F823              rvery:
+143   F823              rmerg:
+144   F823              rmove:
+145   F823              reras:
+146   F823              rform:
+147   F823              ropen:
+148   F823              otrocom:
+149   F823              inter:
+150   F823
+151   F823                  ORG 0xFA32
+152   FA32              rnew:
+153   FA32 D7               RST 0x10
+154   FA33 20 00            DEFW 0x0020     ; Increment CHADD
+155   FA35 CD B7 05         CALL 0x05B7       ; Exit edit
+156   FA38 D7               RST 0x010
+157   FA39 41 FA            DEFW new        ; Call NEW in ROM1
+158   FA3B              retu:
+159   FA3B C3 5F FA         JP rtu
+160   FA3E              retv:
+161   FA3E C3 7B FA         JP rtv
+162   FA41              new:
+163   FA41 11 58 FF         LD DE, 0xFF58   ; USR"a" address
+164   FA44 21 B7 11         LD HL, 0x11B7   ; NEW ROM1 1st routine block
+165   FA47 01 47 00         LD BC, 0x0047   ; transfer 0x47 bytes 1st segment
+166   FA4A ED B0            LDIR
+167   FA4C 21 19 12         LD HL, 0x1219   ; NEW ROM1 second block
+168   FA4F 01 5D 00         LD BC, 0x005D   ; transfer 0x5D bytes
+169   FA52 ED B0            LDIR
+170   FA54 21 3B FA         LD HL, retu
+171   FA57 01 03 00         LD BC, 0x03      ; transfer 3 bytes
+172   FA5A ED B0            LDIR
+173   FA5C C3 58 FF         JP 0xFF58       ; execute 1st block
+174   FA5F              rtu:
+175   FA5F 11 58 FF         LD DE, 0xFF58
+176   FA62 21 76 12         LD HL ,0x1276
+177   FA65 01 2A 00         LD BC, 0x002A
+178   FA68 ED B0            LDIR
+179   FA6A 21 3E FA         LD HL, retv
+180   FA6D 01 03 00         LD BC, 0x03
+181   FA70 ED B0            LDIR
+182   FA72 21 89 FD         LD HL, pomsg
+183   FA75 22 79 FF         LD (0xFF79),HL
+184   FA78 C3 58 FF         JP 0xFF58
+185   FA7B              rtv:
+186   FA7B CF               RST 0x08
+187   FA7C 31               DEFB 0x31
+188   FA7D 21 3C F7         LD HL, exten
+189   FA80 22 B7 5C         LD (0x5CB7),HL
+190   FA83 21 FF FF         LD HL, 0xFFFF
+191   FA86 11 AF 3E         LD DE, 0x3EAF
+192   FA89 01 A0 00         LD BC,0x00A0
+193   FA8C EB               EX DE,HL
+194   FA8D ED B8            LDDR
+195   FA8F 3A 6A 5C         LD A,(0x5C6A)
+196   FA92 CB DF            SET 3,A
+197   FA94 32 6A 5C         LD (0x5C6A),A
+198   FA97 3E 58            LD A,0x58
+199   FA99 32 B1 5C         LD (0x5CB1),A
+200   FA9C C3 A9 12         JP 0x12A9
+201   FA9F
+202   FA9F              ; to be continued
+203   FA9F
+204   FA9F                  ORG 0xFD89
+205   FD89              pomsg:
+206   FD89 A0               DEFB 0xA0
+207   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
+207   FD8E 6F 20 42 61
+207   FD92 73 69 63 20
+207   FD96 4F 2E 53 2E
+207   FD9A 20 41 4E 43
+207   FD9E 20 53 50 41
+207   FDA2 49 4E 20
+208   FDA5 7F               DEFB 0x7F
+209   FDA6 31 39 38         DEFB "198"
+210   FDA9 B4               DEFB 0xB4
+211   FDAA               SAVESNA "microbasic.sna", main
+212   FDAA
 # file closed: microbasic.asm
