@@ -4,12 +4,20 @@
 ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
 
     DEVICE ZXSPECTRUM48
-;    ORG 0xF700
-;    JP 0xFA32
-    ORG 0xF73C   ; Load binary in 63292
+//STACK_SIZE equ 10
+//stack_bottom:
+;    defs    STACK_SIZE*2, 0
+    //ORG 0x000   
+    //DS 0xF700,0
+    ORG 0xF700	  
+//stack_top:
+    //JP 0xFA32
+    JP rnew  //0xFA41  Jump direct to copy restart routine to UGC
 var01 EQU 0x5C81
 var02 EQU 0x5CB0
 inichad EQU 0x5C5D
+//    ORG 0xF73C	 ; Load binary in 63292
+    DS 0xF73C-$,0	 ; Load binary in 63292
 main:
 exten:
     RST 0x10
@@ -21,11 +29,11 @@ exten:
 vecin:
     JP inter
 stab:
-    DEFB 0xE3,0xA0              ; CODE "READ"
-    DEFB 0xE5,0xA0              ; CODE "RESTORE"
-    DEFB 0xBF,0xA0              ; CODE "IN"
-    DEFB 0xF3,0xA0              ; CODE "NEXT"
-    DEFB ".ONERROR:",0xEC,0xA0  ; + CODE 'GOTO'"
+    DEFB 0xE3,0xA0		; CODE "READ"
+    DEFB 0xE5,0xA0		; CODE "RESTORE"
+    DEFB 0xBF,0xA0		; CODE "IN"
+    DEFB 0xF3,0xA0		; CODE "NEXT"
+    DEFB ".ONERROR:",0xEC,0xA0	; + CODE 'GOTO'"
     DEFB ".OFFERROR",0xA0
     DEFB ".REN",0xA0
     DEFB ".NEW",0xA0
@@ -37,17 +45,17 @@ stab:
     DEFB ".AON",0xA0
     DEFB 0xAA,0xA0 ; CODE "SCREEN$"    
     DEFB 0xC3,0xA0 ; CODE "NOT"  (SAVE)
-    DEFB 0x2D,0xA0 ; CODE "-"    (LOAD)
-    DEFB 0x3C,0xA0 ; CODE "<"    (VERIFY)
-    DEFB 0x3E,0xA0 ; CODE ">"    (MERGE)
-    DEFB 0x26,0xA0 ; CODE "&"    (MOVE)
-    DEFB 0x27,0xA0 ; CODE "'"    (ERASE)
-    DEFB 0x5F,0xA0 ; CODE "_"    (FORMAT)
-    DEFB 0x24,0xA0 ; CODE "$"    (OPEN#)
+    DEFB 0x2D,0xA0 ; CODE "-"	 (LOAD)
+    DEFB 0x3C,0xA0 ; CODE "<"	 (VERIFY)
+    DEFB 0x3E,0xA0 ; CODE ">"	 (MERGE)
+    DEFB 0x26,0xA0 ; CODE "&"	 (MOVE)
+    DEFB 0x27,0xA0 ; CODE "'"	 (ERASE)
+    DEFB 0x5F,0xA0 ; CODE "_"	 (FORMAT)
+    DEFB 0x24,0xA0 ; CODE "$"	 (OPEN#)
 finstab: 
-    DEFB 0xFF      ; End of command table
+    DEFB 0xFF	   ; End of command table
     DEFB 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 ; Filler
-rtab:             ; command code start address table
+rtab:		  ; command code start address table
     DEFW comm
     DEFW comm
     DEFW comm
@@ -148,13 +156,14 @@ ropen:
 otrocom:
 inter:
 
-    ORG 0xFA32
+//    ORG 0xFA32
+    DS 0xFA32-$,0
 rnew:
     RST 0x10
     DEFW 0x0020     ; Increment CHADD
     CALL 0x05B7       ; Exit edit
     RST 0x010
-    DEFW new        ; Call NEW in ROM1
+    DEFW new	    ; Call NEW in ROM1
 retu:
     JP rtu
 retv:
@@ -170,7 +179,7 @@ new:
     LD HL, retu
     LD BC, 0x03      ; transfer 3 bytes 
     LDIR
-    JP 0xFF58       ; execute 1st block
+    JP 0xFF58	    ; execute 1st block
 rtu:
     LD DE, 0xFF58
     LD HL ,0x1276
@@ -208,5 +217,5 @@ pomsg:
     DEFB 0x7F
     DEFB "198"
     DEFB 0xB4
- SAVESNA "microbasic.sna", main
 
+ SAVESNA "microbasic.sna", main

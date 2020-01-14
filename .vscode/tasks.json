@@ -9,7 +9,8 @@
             "args": [
                 "--lst=${fileBasenameNoExtension}.list",
                 "${fileBasename}",
-                "--sym=${fileBasenameNoExtension}.labels"
+                "--sym=${fileBasenameNoExtension}.labels",
+                "--raw=${fileBasenameNoExtension}.bin"
             ],
             "problemMatcher": {
                 "fileLocation": [

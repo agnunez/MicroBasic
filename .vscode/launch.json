@@ -28,7 +28,7 @@
                 "esxdosRst": true
             },
             "rootFolder": "${workspaceFolder}",
-            "topOfStack": "0",
+            //"topOfStack": ,
             "load": "MicroBasic.sna",
             "smallValuesMaximum": 513,
             "tmpDir": ".tmp"
