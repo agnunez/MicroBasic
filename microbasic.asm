@@ -4,16 +4,21 @@
 ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
 
     DEVICE ZXSPECTRUM48
-;    ORG 0xF700
-;    JP 0xFA32
-    ORG 0xF73C   ; Load binary in 63292
+    ORG 0xF733  ; Load binary in 63283
+rtop EQU $
+    LD HL,rtop      ; Load RAMTOP  with our firmware start address
+    LD (0x5CB2),HL  ; RAMTOP System Variable address
+    JP rtv          ; jump to initialization routine
 var01 EQU 0x5C81
 var02 EQU 0x5CB0
 inichad EQU 0x5C5D
+grchbuf EQU 0xFF58
+CALBAS  EQU 0x10
+VECTOR  EQU 0x5CB7
 main:
-exten:
-    RST 0x10
-    DEFW 0x0018
+exten:              ; Entry point with ROM2 active
+    RST CALBAS      ; ROM2 call ROM1 at def word below
+    DEFW 0x0018     ; GET-CHAR from ROM1 into A
     LD (var01),HL
     LD C,0
     LD HL, stab
@@ -77,8 +82,8 @@ rlibre:
 other:
     PUSH BC
     PUSH HL
-    RST 0x10
-    DEFW 0020
+    RST CALBAS // Call 0x0020 of ROM1 from ROM2
+    DEFW 0020  // NEXT-CHAR from ROM1 incrementing CH-ADD
     POP HL
     POP BC
 othcm:
@@ -98,8 +103,8 @@ nmat1:
     PUSH HL
     LD HL,(var01)
     LD (inichad),HL
-    RST 0x10
-    DEFW 0x0018
+    RST CALBAS
+    DEFW 0x0018 // GET-CHAR at ROM1
     POP HL
     INC C
     JR othcm
@@ -148,60 +153,60 @@ ropen:
 otrocom:
 inter:
 
-    ORG 0xFA32
+    DS 0xFA32-$,0  // 64050
 rnew:
-    RST 0x10
-    DEFW 0x0020     ; Increment CHADD
-    CALL 0x05B7       ; Exit edit
-    RST 0x010
-    DEFW new        ; Call NEW in ROM1
+    RST CALBAS
+    DEFW 0x0020     ; Call NEXT-CHAR at ROM1. Test for keypress, incrementing CH-ADD
+    CALL 0x05B7     ; ST-END Confirm end of statement and exit from ROM2 into ROM1 editor
+    RST CALBAS
+    DEFW new        ; copy NEW from ROM1 into Graphic character buffer
 retu:
-    JP rtu
+    JP rtu          ; Jump over NEW copy code and resume
 retv:
     JP rtv
-new:
-    LD DE, 0xFF58   ; USR"a" address
+new:                ; Copy 1st part of fake NEW into grchbuf
+    LD DE, grchbuf  ; Graphic character USR"a" buffer address
     LD HL, 0x11B7   ; NEW ROM1 1st routine block
     LD BC, 0x0047   ; transfer 0x47 bytes 1st segment
     LDIR
     LD HL, 0x1219   ; NEW ROM1 second block
     LD BC, 0x005D   ; transfer 0x5D bytes
     LDIR
-    LD HL, retu
-    LD BC, 0x03      ; transfer 3 bytes 
+    LD HL, retu     ; add rtu return address at the end of fake NEW copy 1st part
+    LD BC, 0x03     ; transfer 3 bytes 
     LDIR
-    JP 0xFF58       ; execute 1st block
+    JP grchbuf      ; execute 1st part of fake NEW
 rtu:
-    LD DE, 0xFF58
+    LD DE, grchbuf
     LD HL ,0x1276
     LD BC, 0x002A
     LDIR
-    LD HL, retv
+    LD HL, retv     ; add rtv return address at the end of fake NEW copy 2nd part
     LD BC, 0x03
     LDIR
     LD HL, pomsg
     LD (0xFF79),HL
-    JP 0xFF58
+    JP grchbuf      ; execute 2nd part of fake NEW with pomsg welcome message and resume at rtv
 rtv:
-    RST 0x08
-    DEFB 0x31
+    RST 0x08        ; Call Hook at ROM2
+    DEFB 0x31       ; Creates the new system variables used by the Interface 1
     LD HL, exten
-    LD (0x5CB7),HL
-    LD HL, 0xFFFF
+    LD (VECTOR),HL  ; Load our "exten" new command service routine into VECTOR System Variable
+    LD HL, 0xFFFF   ; Copy Graphic Characters from ROM1 into used grchbuf top-down
     LD DE, 0x3EAF
     LD BC,0x00A0
     EX DE,HL
     LDDR
-    LD A,(0x5C6A)
+    LD A,(0x5C6A)   ; Activate Uppercase to easy new commands
     SET 3,A
-    LD (0x5C6A),A
+    LD (0x5C6A),A   ; FLAGS2 00000100 (Set CAPS LOCK)
     LD A,0x58
-    LD (0x5CB1),A
-    JP 0x12A9
+    LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
+    JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
 
 ; to be continued
 
-    ORG 0xFD89
+    DS 0xFD89-$,0  // 64905
 pomsg:
     DEFB 0xA0
     DEFB "Micro Basic O.S. ANC SPAIN "
