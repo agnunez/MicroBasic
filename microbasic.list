@@ -77,7 +77,7 @@
  63   F7BB 32 FA            DEFW rnew
  64   F7BD 23 F8            DEFW rtr
  65   F7BF 23 F8            DEFW rren
- 66   F7C1 23 F8            DEFW rfnd
+ 66   F7C1 A9 FC            DEFW rfnd
  67   F7C3 23 F8            DEFW rcha
  68   F7C5 23 F8            DEFW raof
  69   F7C7 23 F8            DEFW raon
@@ -151,7 +151,7 @@
 137   F823              offer:
 138   F823              rren:
 139   F823              rtr:
-140   F823              rfnd:
+140   F823
 141   F823              rcha:
 142   F823              raof:
 143   F823              raon:
@@ -217,21 +217,32 @@
 203   FA99 32 91 5C         LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
 204   FA9C C3 A9 12         JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
 205   FA9F
-206   FA9F              ; to be continued
-207   FA9F
-208   FA9F 00 00 00...      DS 0xFD89-$,0  // 64905
-209   FD89              pomsg:
-210   FD89 A0               DEFB 0xA0
-211   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
-211   FD8E 6F 20 42 61
-211   FD92 73 69 63 20
-211   FD96 4F 2E 53 2E
-211   FD9A 20 41 4E 43
-211   FD9E 20 53 50 41
-211   FDA2 49 4E 20
-212   FDA5 7F               DEFB 0x7F
-213   FDA6 31 39 38         DEFB "198"
-214   FDA9 B4               DEFB 0xB4
-215   FDAA
-216   FDAA               SAVESNA "microbasic.sna", main
+206   FA9F              ; gap
+207   FA9F 00 00 00...      DS 0xFCA9-$,0
+208   FCA9              rfnd:
+209   FCA9 D7               RST 0x10
+210   FCAA 20 00            DEFW 0x0020
+211   FCAC D7               RST 0x10
+212   FCAD 8C 1C            DEFW 0x1C8C
+213   FCAF CD B7 05         CALL 0x05B7
+214   FCB2 D7               RST 0x10
+215   FCB3 E3 FC            DEFW 0xFCE3
+216   FCB5 C3 C1 05         JP 0x05C1
+217   FCB8              ; to be continued
+218   FCB8
+219   FCB8 00 00 00...      DS 0xFD89-$,0  // 64905
+220   FD89              pomsg:
+221   FD89 A0               DEFB 0xA0
+222   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
+222   FD8E 6F 20 42 61
+222   FD92 73 69 63 20
+222   FD96 4F 2E 53 2E
+222   FD9A 20 41 4E 43
+222   FD9E 20 53 50 41
+222   FDA2 49 4E 20
+223   FDA5 7F               DEFB 0x7F
+224   FDA6 31 39 38         DEFB "198"
+225   FDA9 B4               DEFB 0xB4
+226   FDAA
+227   FDAA               SAVESNA "microbasic.sna", main
 # file closed: microbasic.asm

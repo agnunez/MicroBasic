@@ -137,7 +137,7 @@ roner:
 offer:
 rren:
 rtr:
-rfnd:
+
 rcha:
 raof:
 raon:
@@ -203,6 +203,17 @@ rtv:
     LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
     JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
 
+; gap
+    DS 0xFCA9-$,0
+rfnd:
+    RST 0x10
+    DEFW 0x0020
+    RST 0x10
+    DEFW 0x1C8C
+    CALL 0x05B7
+    RST 0x10
+    DEFW 0xFCE3
+    JP 0x05C1
 ; to be continued
 
     DS 0xFD89-$,0  // 64905

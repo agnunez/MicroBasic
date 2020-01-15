@@ -21,7 +21,7 @@ offer: equ 0x0000F823
 rren: equ 0x0000F823
 rnew: equ 0x0000FA32
 rtr: equ 0x0000F823
-rfnd: equ 0x0000F823
+rfnd: equ 0x0000FCA9
 rcha: equ 0x0000F823
 raof: equ 0x0000F823
 raon: equ 0x0000F823
