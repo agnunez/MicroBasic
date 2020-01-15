@@ -76,21 +76,21 @@
  62   F7B9 23 F8            DEFW rren
  63   F7BB 32 FA            DEFW rnew
  64   F7BD 23 F8            DEFW rtr
- 65   F7BF 23 F8            DEFW rren
+ 65   F7BF 23 F8            DEFW rdel
  66   F7C1 A9 FC            DEFW rfnd
  67   F7C3 23 F8            DEFW rcha
  68   F7C5 23 F8            DEFW raof
  69   F7C7 23 F8            DEFW raon
  70   F7C9 23 F8            DEFW rcopy
- 71   F7CB 23 F8            DEFW rsave
- 72   F7CD 23 F8            DEFW rload
- 73   F7CF 23 F8            DEFW rvery
- 74   F7D1 23 F8            DEFW rmerg
- 75   F7D3 23 F8            DEFW rmove
- 76   F7D5 23 F8            DEFW reras
- 77   F7D7 23 F8            DEFW rform
+ 71   F7CB F0 FE            DEFW rsave
+ 72   F7CD F4 FE            DEFW rload
+ 73   F7CF F8 FE            DEFW rvery
+ 74   F7D1 FC FE            DEFW rmerg
+ 75   F7D3 06 FF            DEFW rmove
+ 76   F7D5 0A FF            DEFW reras
+ 77   F7D7 0E FF            DEFW rform
  78   F7D9              finrtab
- 79   F7D9 23 F8            DEFW ropen
+ 79   F7D9 18 FF            DEFW ropen
  80   F7DB              rlibre:
  81   F7DB 00 00 00 00      DEFB 0x0,0x0,0x0,0x0
  82   F7DF              other:
@@ -151,98 +151,155 @@
 137   F823              offer:
 138   F823              rren:
 139   F823              rtr:
-140   F823
+140   F823              rdel:
 141   F823              rcha:
 142   F823              raof:
 143   F823              raon:
 144   F823              rcopy:
-145   F823              rsave:
-146   F823              rload:
-147   F823              rvery:
-148   F823              rmerg:
-149   F823              rmove:
-150   F823              reras:
-151   F823              rform:
-152   F823              ropen:
-153   F823              inter:
-154   F823
-155   F823 00 00 00...      DS 0xFA32-$,0  // 64050
-156   FA32              rnew:
-157   FA32 D7               RST CALBAS
-158   FA33 20 00            DEFW 0x0020     ; Call NEXT-CHAR at ROM1. Test for keypress, incrementing CH-ADD
-159   FA35 CD B7 05         CALL 0x05B7     ; ST-END Confirm end of statement and exit from ROM2 into ROM1 editor
-160   FA38 D7               RST CALBAS
-161   FA39 41 FA            DEFW new        ; copy NEW from ROM1 into Graphic character buffer
-162   FA3B              retu:
-163   FA3B C3 5F FA         JP rtu          ; Jump over NEW copy code and resume
-164   FA3E              retv:
-165   FA3E C3 7B FA         JP rtv
-166   FA41              new:                ; Copy 1st part of fake NEW into grchbuf
-167   FA41 11 58 FF         LD DE, grchbuf  ; Graphic character USR"a" buffer address
-168   FA44 21 B7 11         LD HL, 0x11B7   ; NEW ROM1 1st routine block
-169   FA47 01 47 00         LD BC, 0x0047   ; transfer 0x47 bytes 1st segment
-170   FA4A ED B0            LDIR
-171   FA4C 21 19 12         LD HL, 0x1219   ; NEW ROM1 second block
-172   FA4F 01 5D 00         LD BC, 0x005D   ; transfer 0x5D bytes
-173   FA52 ED B0            LDIR
-174   FA54 21 3B FA         LD HL, retu     ; add rtu return address at the end of fake NEW copy 1st part
-175   FA57 01 03 00         LD BC, 0x03     ; transfer 3 bytes
-176   FA5A ED B0            LDIR
-177   FA5C C3 58 FF         JP grchbuf      ; execute 1st part of fake NEW
-178   FA5F              rtu:
-179   FA5F 11 58 FF         LD DE, grchbuf
-180   FA62 21 76 12         LD HL ,0x1276
-181   FA65 01 2A 00         LD BC, 0x002A
-182   FA68 ED B0            LDIR
-183   FA6A 21 3E FA         LD HL, retv     ; add rtv return address at the end of fake NEW copy 2nd part
-184   FA6D 01 03 00         LD BC, 0x03
-185   FA70 ED B0            LDIR
-186   FA72 21 89 FD         LD HL, pomsg
-187   FA75 22 79 FF         LD (0xFF79),HL
-188   FA78 C3 58 FF         JP grchbuf      ; execute 2nd part of fake NEW with pomsg welcome message and resume at rtv
-189   FA7B              rtv:
-190   FA7B CF               RST 0x08        ; Call Hook at ROM2
-191   FA7C 31               DEFB 0x31       ; Creates the new system variables used by the Interface 1
-192   FA7D 21 3C F7         LD HL, exten
-193   FA80 22 B7 5C         LD (VECTOR),HL  ; Load our "exten" new command service routine into VECTOR System Variable
-194   FA83 21 FF FF         LD HL, 0xFFFF   ; Copy Graphic Characters from ROM1 into used grchbuf top-down
-195   FA86 11 AF 3E         LD DE, 0x3EAF
-196   FA89 01 A0 00         LD BC,0x00A0
-197   FA8C EB               EX DE,HL
-198   FA8D ED B8            LDDR
-199   FA8F 3A 6A 5C         LD A,(0x5C6A)   ; Activate Uppercase to easy new commands
-200   FA92 CB DF            SET 3,A
-201   FA94 32 6A 5C         LD (0x5C6A),A   ; FLAGS2 00000100 (Set CAPS LOCK)
-202   FA97 3E 00            LD A,0x00
-203   FA99 32 91 5C         LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
-204   FA9C C3 A9 12         JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
-205   FA9F
-206   FA9F              ; gap
-207   FA9F 00 00 00...      DS 0xFCA9-$,0
-208   FCA9              rfnd:
-209   FCA9 D7               RST 0x10
-210   FCAA 20 00            DEFW 0x0020
-211   FCAC D7               RST 0x10
-212   FCAD 8C 1C            DEFW 0x1C8C
-213   FCAF CD B7 05         CALL 0x05B7
-214   FCB2 D7               RST 0x10
-215   FCB3 E3 FC            DEFW 0xFCE3
-216   FCB5 C3 C1 05         JP 0x05C1
-217   FCB8              ; to be continued
-218   FCB8
-219   FCB8 00 00 00...      DS 0xFD89-$,0  // 64905
-220   FD89              pomsg:
-221   FD89 A0               DEFB 0xA0
-222   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
-222   FD8E 6F 20 42 61
-222   FD92 73 69 63 20
-222   FD96 4F 2E 53 2E
-222   FD9A 20 41 4E 43
-222   FD9E 20 53 50 41
-222   FDA2 49 4E 20
-223   FDA5 7F               DEFB 0x7F
-224   FDA6 31 39 38         DEFB "198"
-225   FDA9 B4               DEFB 0xB4
-226   FDAA
-227   FDAA               SAVESNA "microbasic.sna", main
+145   F823              inter:
+146   F823
+147   F823 00 00 00...      DS 0xFA32-$,0  // 64050
+148   FA32              rnew:
+149   FA32 D7               RST CALBAS
+150   FA33 20 00            DEFW 0x0020     ; Call NEXT-CHAR at ROM1. Test for keypress, incrementing CH-ADD
+151   FA35 CD B7 05         CALL 0x05B7     ; ST-END Confirm end of statement and exit from ROM2 into ROM1 editor
+152   FA38 D7               RST CALBAS
+153   FA39 41 FA            DEFW new        ; copy NEW from ROM1 into Graphic character buffer
+154   FA3B              retu:
+155   FA3B C3 5F FA         JP rtu          ; Jump over NEW copy code and resume
+156   FA3E              retv:
+157   FA3E C3 7B FA         JP rtv
+158   FA41              new:                ; Copy 1st part of fake NEW into grchbuf
+159   FA41 11 58 FF         LD DE, grchbuf  ; Graphic character USR"a" buffer address
+160   FA44 21 B7 11         LD HL, 0x11B7   ; NEW ROM1 1st routine block
+161   FA47 01 47 00         LD BC, 0x0047   ; transfer 0x47 bytes 1st segment
+162   FA4A ED B0            LDIR
+163   FA4C 21 19 12         LD HL, 0x1219   ; NEW ROM1 second block
+164   FA4F 01 5D 00         LD BC, 0x005D   ; transfer 0x5D bytes
+165   FA52 ED B0            LDIR
+166   FA54 21 3B FA         LD HL, retu     ; add rtu return address at the end of fake NEW copy 1st part
+167   FA57 01 03 00         LD BC, 0x03     ; transfer 3 bytes
+168   FA5A ED B0            LDIR
+169   FA5C C3 58 FF         JP grchbuf      ; execute 1st part of fake NEW
+170   FA5F              rtu:
+171   FA5F 11 58 FF         LD DE, grchbuf
+172   FA62 21 76 12         LD HL ,0x1276
+173   FA65 01 2A 00         LD BC, 0x002A
+174   FA68 ED B0            LDIR
+175   FA6A 21 3E FA         LD HL, retv     ; add rtv return address at the end of fake NEW copy 2nd part
+176   FA6D 01 03 00         LD BC, 0x03
+177   FA70 ED B0            LDIR
+178   FA72 21 89 FD         LD HL, pomsg
+179   FA75 22 79 FF         LD (0xFF79),HL
+180   FA78 C3 58 FF         JP grchbuf      ; execute 2nd part of fake NEW with pomsg welcome message and resume at rtv
+181   FA7B              rtv:
+182   FA7B CF               RST 0x08        ; Call Hook at ROM2
+183   FA7C 31               DEFB 0x31       ; Creates the new system variables used by the Interface 1
+184   FA7D 21 3C F7         LD HL, exten
+185   FA80 22 B7 5C         LD (VECTOR),HL  ; Load our "exten" new command service routine into VECTOR System Variable
+186   FA83 21 FF FF         LD HL, 0xFFFF   ; Copy Graphic Characters from ROM1 into used grchbuf top-down
+187   FA86 11 AF 3E         LD DE, 0x3EAF
+188   FA89 01 A0 00         LD BC,0x00A0
+189   FA8C EB               EX DE,HL
+190   FA8D ED B8            LDDR
+191   FA8F 3A 6A 5C         LD A,(0x5C6A)   ; Activate Uppercase to easy new commands
+192   FA92 CB DF            SET 3,A
+193   FA94 32 6A 5C         LD (0x5C6A),A   ; FLAGS2 00000100 (Set CAPS LOCK)
+194   FA97 3E 00            LD A,0x00
+195   FA99 32 91 5C         LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
+196   FA9C C3 A9 12         JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
+197   FA9F
+198   FA9F              ; gap
+199   FA9F 00 00 00...      DS 0xFCA9-$,0
+200   FCA9              rfnd:
+201   FCA9 D7               RST 0x10
+202   FCAA 20 00            DEFW 0x0020
+203   FCAC D7               RST 0x10
+204   FCAD 8C 1C            DEFW 0x1C8C
+205   FCAF CD B7 05         CALL 0x05B7
+206   FCB2 D7               RST 0x10
+207   FCB3 E3 FC            DEFW 0xFCE3
+208   FCB5 C3 C1 05         JP 0x05C1
+209   FCB8              ; to be continued
+210   FCB8
+211   FCB8 00 00 00...      DS 0xFD89-$,0  // 64905
+212   FD89              pomsg:
+213   FD89 A0               DEFB 0xA0
+214   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
+214   FD8E 6F 20 42 61
+214   FD92 73 69 63 20
+214   FD96 4F 2E 53 2E
+214   FD9A 20 41 4E 43
+214   FD9E 20 53 50 41
+214   FDA2 49 4E 20
+215   FDA5 7F               DEFB 0x7F
+216   FDA6 31 39 38         DEFB "198"
+217   FDA9 B4               DEFB 0xB4
+218   FDAA              ; gap
+219   FDAA 00 00 00...      DS 0xFEF0-$,0
+220   FEF0              rsave:
+221   FEF0 3E F8            LD A,0xF8
+222   FEF2 18 0A            JR sacon
+223   FEF4              rload:
+224   FEF4 3E EF            LD A,0xEF
+225   FEF6 18 06            JR sacon
+226   FEF8              rvery:
+227   FEF8 3E D6            LD A,0xD6
+228   FEFA 18 02            JR sacon
+229   FEFC              rmerg:
+230   FEFC 3E D5            LD A,0xD5
+231   FEFE              sacon:
+232   FEFE 01 0A 00         LD BC,0x0A
+233   FF01 11 39 FF         LD DE,texcm
+234   FF04 18 1A            JR ampli
+235   FF06              rmove:
+236   FF06 3E D1            LD A,0xD1
+237   FF08 18 06            JR mocon
+238   FF0A              reras:
+239   FF0A 3E D2            LD A,0xD2
+240   FF0C 18 02            JR mocon
+241   FF0E              rform:
+242   FF0E 3E D0            LD a,0xD0
+243   FF10              mocon:
+244   FF10 11 43 FF         LD DE, texsa
+245   FF13 01 09 00         LD BC,0x9
+246   FF16 18 08            JR ampli
+247   FF18              ropen:
+248   FF18 3E D3            LD A,0xD3
+249   FF1A 11 4C FF         LD DE,texop
+250   FF1D 01 0B 00         LD BC, 0x0B
+251   FF20              ampli:
+252   FF20 D5               PUSH DE
+253   FF21 C5               PUSH BC
+254   FF22 12               LD (DE),A
+255   FF23 D7               RST 0x10
+256   FF24 20 00            DEFW 0x0020
+257   FF26 C1               POP BC
+258   FF27 C5               PUSH BC
+259   FF28 0B               DEC BC
+260   FF29 D7               RST 0x10
+261   FF2A 55 16            DEFW 0x1655
+262   FF2C C1               POP BC
+263   FF2D D1               POP DE
+264   FF2E EB               EX DE,HL
+265   FF2F ED B0            LDIR
+266   FF31 EB               EX DE,HL
+267   FF32 2B               DEC HL
+268   FF33 22 5B 5C         LD (0x5C5B),HL
+269   FF36 C3 F0 01         JP 0x01F0
+270   FF39              texcm:
+271   FF39 F8               DEFB 0xF8
+272   FF3A              texmd:
+273   FF3A 2A 22 6D 22      DEFB "*",0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+273   FF3E 3B 31 3B 22
+273   FF42 22
+274   FF43              texsa
+275   FF43 D1 22 6D 22      DEFB 0xD1,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+275   FF47 3B 31 3B 22
+275   FF4B 22
+276   FF4C              texop:
+277   FF4C D3 38 3B 22      DEFB 0xD3,"8",0x3B,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+277   FF50 6D 22 3B 31
+277   FF54 3B 22 22
+278   FF57
 # file closed: microbasic.asm

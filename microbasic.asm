@@ -62,7 +62,7 @@ rtab:		  ; command code start address table
     DEFW rren
     DEFW rnew
     DEFW rtr
-    DEFW rren
+    DEFW rdel
     DEFW rfnd
     DEFW rcha
     DEFW raof
@@ -137,19 +137,11 @@ roner:
 offer:
 rren:
 rtr:
-
+rdel:
 rcha:
 raof:
 raon:
 rcopy:
-rsave:
-rload:
-rvery:
-rmerg:
-rmove:
-reras:
-rform:
-ropen:
 inter:
 
     DS 0xFA32-$,0  // 64050
@@ -223,5 +215,63 @@ pomsg:
     DEFB 0x7F
     DEFB "198"
     DEFB 0xB4
-
- SAVESNA "microbasic.sna", main
+; gap
+    DS 0xFEF0-$,0
+rsave:
+    LD A,0xF8
+    JR sacon
+rload:
+    LD A,0xEF
+    JR sacon
+rvery:
+    LD A,0xD6
+    JR sacon
+rmerg:
+    LD A,0xD5
+sacon:
+    LD BC,0x0A
+    LD DE,texcm
+    JR ampli
+rmove:
+    LD A,0xD1
+    JR mocon
+reras:
+    LD A,0xD2
+    JR mocon
+rform:
+    LD a,0xD0
+mocon:
+    LD DE, texsa
+    LD BC,0x9
+    JR ampli
+ropen:
+    LD A,0xD3
+    LD DE,texop
+    LD BC, 0x0B
+ampli:
+    PUSH DE
+    PUSH BC
+    LD (DE),A
+    RST 0x10
+    DEFW 0x0020
+    POP BC
+    PUSH BC
+    DEC BC
+    RST 0x10
+    DEFW 0x1655
+    POP BC
+    POP DE
+    EX DE,HL
+    LDIR
+    EX DE,HL
+    DEC HL
+    LD (0x5C5B),HL
+    JP 0x01F0
+texcm:
+    DEFB 0xF8
+texmd:
+    DEFB "*",0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+texsa
+    DEFB 0xD1,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+texop:
+    DEFB 0xD3,"8",0x3B,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
