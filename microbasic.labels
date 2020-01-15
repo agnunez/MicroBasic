@@ -23,7 +23,7 @@ rnew: equ 0x0000FA32
 rtr: equ 0x0000F823
 rdel: equ 0x0000F823
 rfnd: equ 0x0000FCA9
-rcha: equ 0x0000F823
+rcha: equ 0x0000FCB8
 raof: equ 0x0000F823
 raon: equ 0x0000F823
 rcopy: equ 0x0000F823
@@ -47,6 +47,18 @@ retu: equ 0x0000FA3B
 rtu: equ 0x0000FA5F
 retv: equ 0x0000FA3E
 pomsg: equ 0x0000FD89
+sr0: equ 0x0000FCE1
+ch0: equ 0x0000FCD2
+sr1: equ 0x0000FCEB
+sr2: equ 0x0000FCF2
+sr3: equ 0x0000FCFA
+sr4: equ 0x0000FD04
+sr5: equ 0x0000FD14
+sr6: equ 0x0000FD1E
+sr8: equ 0x0000FD34
+sr7: equ 0x0000FD24
+sr71: equ 0x0000FD2D
+sr70: equ 0x0000FD2A
 sacon: equ 0x0000FEFE
 texcm: equ 0x0000FF39
 ampli: equ 0x0000FF20

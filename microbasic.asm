@@ -138,7 +138,6 @@ offer:
 rren:
 rtr:
 rdel:
-rcha:
 raof:
 raon:
 rcopy:
@@ -197,15 +196,111 @@ rtv:
 
 ; gap
     DS 0xFCA9-$,0
-rfnd:
+rfnd:               ; .FND Find string command
     RST 0x10
     DEFW 0x0020
-    RST 0x10
+    RST 0x10        ; Parse a charcter string
     DEFW 0x1C8C
-    CALL 0x05B7
+    CALL 0x05B7     ; Exit editor
     RST 0x10
-    DEFW 0xFCE3
-    JP 0x05C1
+    DEFW sr0        ; call sr0 with ROM1 0xFCE3
+    JP 0x05C1       ; command exit
+rcha:               ; .CHA Change string command
+    RST 0x10        ; Next character
+    DEFW 0x0020
+    RST 0x10
+    DEFW 0x1C8C          ; Finish string in ROM1
+    CP 0xCC
+    JP NZ,0x01F0    ; Error if  we do not have a 'TO' separator    
+    RST 0x10
+    DEFW 0x0020          ; Next character
+    RST 0x10        ; Parse a character string
+    DEFW 0x018C
+    CALL 0x05B7     ; Exit editor
+    RST 0x10        ; call ch0 with ROM1
+    DEFW ch0
+    JP 0x05C1       ; Command exit
+ch0:
+    CALL 0x2BF1     ; DE = last string start
+    LD A,C          ; BC = last string length
+    CP 0            ; length is 0?
+    RET Z           ; Resume Basic
+    LD HL,0x5B00
+    LD (HL),C       ; second string length into 0x5B00
+    INC (HL)
+    EX DE, HL       ; Copy in 0x5B02 second string
+    LDIR
+sr0:
+    CALL 0x2BF1
+    PUSH DE
+    POP IX
+    LD A,C
+    LD (var01),A
+sr1:
+    RES 0,(IY+2)
+    LD HL,(0x5C53)
+sr2:
+    LD A,(var01)
+    LD E,A
+    CP 0x0
+    RET Z
+    PUSH HL
+sr3:
+    PUSH IX
+    POP BC
+    LD D,0x0
+    LD D,0
+    INC HL
+    INC HL
+    INC HL
+sr4:
+    INC HL
+    PUSH DE
+    LD DE,(0x5C4B)
+    XOR A
+    AND A
+    SBC HL,DE
+    ADD HL,DE
+    POP DE
+    JR C,sr5
+    POP HL
+    RET
+sr5:
+    LD A,(HL)
+    CP 0x0D
+    JR NZ,sr6
+    INC HL
+    POP BC
+    PUSH HL
+    JR sr3
+sr6:
+    CALL 0x18B6
+    JR NZ,sr8
+    DEC HL
+sr7:
+    LD A,D
+    CP 0x0
+    JR Z,sr71
+    LD B,D
+sr70:
+    DEC HL
+    DJNZ sr70
+sr71:
+    PUSH IX
+    POP BC
+    LD D,0
+    JR sr4
+sr8:
+    LD A,(BC)
+    CP (HL)
+    JR NZ,sr7
+    INC BC
+    INC D
+    LD A,D
+    CP E
+    JR NZ,sr4
+    LD A,(0x5CB0)
+
 ; to be continued
 
     DS 0xFD89-$,0  // 64905
