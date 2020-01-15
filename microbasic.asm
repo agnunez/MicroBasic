@@ -4,9 +4,8 @@
 ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
 
     DEVICE ZXSPECTRUM48
-<<<<<<< HEAD
     ORG 0xF733  ; Load binary in 63283
-rtop EQU $
+rtop EQU $-1
     LD HL,rtop      ; Load RAMTOP  with our firmware start address
     LD (0x5CB2),HL  ; RAMTOP System Variable address
     JP rtv          ; jump to initialization routine
@@ -16,22 +15,6 @@ inichad EQU 0x5C5D
 grchbuf EQU 0xFF58
 CALBAS  EQU 0x10
 VECTOR  EQU 0x5CB7
-=======
-//STACK_SIZE equ 10
-//stack_bottom:
-;    defs    STACK_SIZE*2, 0
-    //ORG 0x000   
-    //DS 0xF700,0
-    ORG 0xF700	  
-//stack_top:
-    //JP 0xFA32
-    JP rnew  //0xFA41  Jump direct to copy restart routine to UGC
-var01 EQU 0x5C81
-var02 EQU 0x5CB0
-inichad EQU 0x5C5D
-//    ORG 0xF73C	 ; Load binary in 63292
-    DS 0xF73C-$,0	 ; Load binary in 63292
->>>>>>> dc2368cee73ad296a058704cf0229c98efb3dea2
 main:
 exten:              ; Entry point with ROM2 active
     RST CALBAS      ; ROM2 call ROM1 at def word below
@@ -39,7 +22,7 @@ exten:              ; Entry point with ROM2 active
     LD (var01),HL
     LD C,0
     LD HL, stab
-    JP otrocom
+    JP othcm
 vecin:
     JP inter
 stab:
@@ -100,7 +83,7 @@ other:
     PUSH BC
     PUSH HL
     RST CALBAS // Call 0x0020 of ROM1 from ROM2
-    DEFW 0020  // NEXT-CHAR from ROM1 incrementing CH-ADD
+    DEFW 0x0020  // NEXT-CHAR from ROM1 incrementing CH-ADD
     POP HL
     POP BC
 othcm:
@@ -127,6 +110,7 @@ nmat1:
     JR othcm
 taber:
     JP 0x01F0
+mat1:
     LD B,A
     INC HL
     LD A, (HL)
@@ -147,7 +131,6 @@ found:
     LD (var02),A
     JP (HL)
 
-mat1:
 comm:
 nexts:
 roner:
@@ -167,10 +150,8 @@ rmove:
 reras:
 rform:
 ropen:
-otrocom:
 inter:
 
-<<<<<<< HEAD
     DS 0xFA32-$,0  // 64050
 rnew:
     RST CALBAS
@@ -178,16 +159,6 @@ rnew:
     CALL 0x05B7     ; ST-END Confirm end of statement and exit from ROM2 into ROM1 editor
     RST CALBAS
     DEFW new        ; copy NEW from ROM1 into Graphic character buffer
-=======
-//    ORG 0xFA32
-    DS 0xFA32-$,0
-rnew:
-    RST 0x10
-    DEFW 0x0020     ; Increment CHADD
-    CALL 0x05B7       ; Exit edit
-    RST 0x010
-    DEFW new	    ; Call NEW in ROM1
->>>>>>> dc2368cee73ad296a058704cf0229c98efb3dea2
 retu:
     JP rtu          ; Jump over NEW copy code and resume
 retv:
@@ -203,11 +174,7 @@ new:                ; Copy 1st part of fake NEW into grchbuf
     LD HL, retu     ; add rtu return address at the end of fake NEW copy 1st part
     LD BC, 0x03     ; transfer 3 bytes 
     LDIR
-<<<<<<< HEAD
     JP grchbuf      ; execute 1st part of fake NEW
-=======
-    JP 0xFF58	    ; execute 1st block
->>>>>>> dc2368cee73ad296a058704cf0229c98efb3dea2
 rtu:
     LD DE, grchbuf
     LD HL ,0x1276
@@ -232,7 +199,7 @@ rtv:
     LD A,(0x5C6A)   ; Activate Uppercase to easy new commands
     SET 3,A
     LD (0x5C6A),A   ; FLAGS2 00000100 (Set CAPS LOCK)
-    LD A,0x58
+    LD A,0x00
     LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
     JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
 

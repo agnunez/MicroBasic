@@ -1,10 +1,15 @@
+rtop: equ 0x0000F732
+rtv: equ 0x0000FA7B
 var01: equ 0x00005C81
 var02: equ 0x00005CB0
 inichad: equ 0x00005C5D
+grchbuf: equ 0x0000FF58
+CALBAS: equ 0x00000010
+VECTOR: equ 0x00005CB7
 main: equ 0x0000F73C
 exten: equ 0x0000F73C
 stab: equ 0x0000F74D
-otrocom: equ 0x0000F823
+othcm: equ 0x0000F7E6
 vecin: equ 0x0000F74A
 inter: equ 0x0000F823
 finstab: equ 0x0000F7A4
@@ -32,8 +37,7 @@ finrtab: equ 0x0000F7D9
 ropen: equ 0x0000F823
 rlibre: equ 0x0000F7DB
 other: equ 0x0000F7DF
-othcm: equ 0x0000F7E6
-mat1: equ 0x0000F823
+mat1: equ 0x0000F808
 nmat1: equ 0x0000F7EB
 taber: equ 0x0000F805
 found: equ 0x0000F811
@@ -41,5 +45,4 @@ new: equ 0x0000FA41
 retu: equ 0x0000FA3B
 rtu: equ 0x0000FA5F
 retv: equ 0x0000FA3E
-rtv: equ 0x0000FA7B
 pomsg: equ 0x0000FD89
