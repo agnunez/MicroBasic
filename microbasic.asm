@@ -12,9 +12,9 @@ rtop EQU $-1
 var01 EQU 0x5C81
 var02 EQU 0x5CB0
 inichad EQU 0x5C5D
+CALBAS  EQU 0x10    ; Call a ROM1 routine from ROM2
+VECTOR  EQU 0x5CB7  ; Hook address for command extension while syntax error found
 grchbuf EQU 0xFF58
-CALBAS  EQU 0x10
-VECTOR  EQU 0x5CB7
 main:
 exten:              ; Entry point with ROM2 active
     RST CALBAS      ; ROM2 call ROM1 at def word below
@@ -175,7 +175,7 @@ rtu:
     LD BC, 0x03
     LDIR
     LD HL, pomsg
-    LD (0xFF79),HL
+    LD (grchbuf+0x21),HL
     JP grchbuf      ; execute 2nd part of fake NEW with pomsg welcome message and resume at rtv
 rtv:
     RST 0x08        ; Call Hook at ROM2
@@ -196,26 +196,26 @@ rtv:
 
 ; gap
     DS 0xFCA9-$,0
-rfnd:               ; .FND Find string command
+rfnd:               ; .FND Find string in Basic lines command 
     RST 0x10
-    DEFW 0x0020
-    RST 0x10        ; Parse a charcter string
+    DEFW 0x0020     ; Parse a character
+    RST 0x10        ; Parse to end of string
     DEFW 0x1C8C
     CALL 0x05B7     ; Exit editor
     RST 0x10
-    DEFW sr0        ; call sr0 with ROM1 0xFCE3
+    DEFW sr0        ; call sr0 in ROM1 0xFCE3
     JP 0x05C1       ; command exit
 rcha:               ; .CHA Change string command
-    RST 0x10        ; Next character
-    DEFW 0x0020
+    RST 0x10        
+    DEFW 0x0020     ; Parse next character
     RST 0x10
-    DEFW 0x1C8C          ; Finish string in ROM1
+    DEFW 0x1C8C     ; Parse to end of string in ROM1
     CP 0xCC
     JP NZ,0x01F0    ; Error if  we do not have a 'TO' separator    
     RST 0x10
-    DEFW 0x0020          ; Next character
+    DEFW 0x0020     ; Next character
     RST 0x10        ; Parse a character string
-    DEFW 0x018C
+    DEFW 0x1C8C
     CALL 0x05B7     ; Exit editor
     RST 0x10        ; call ch0 with ROM1
     DEFW ch0
@@ -227,7 +227,9 @@ ch0:
     RET Z           ; Resume Basic
     LD HL,0x5B00
     LD (HL),C       ; second string length into 0x5B00
-    INC (HL)
+    INC HL
+    LD (HL),B
+    INC HL
     EX DE, HL       ; Copy in 0x5B02 second string
     LDIR
 sr0:
@@ -249,7 +251,6 @@ sr3:
     PUSH IX
     POP BC
     LD D,0x0
-    LD D,0
     INC HL
     INC HL
     INC HL
@@ -300,10 +301,52 @@ sr8:
     CP E
     JR NZ,sr4
     LD A,(0x5CB0)
-
-; to be continued
-
-    DS 0xFD89-$,0  // 64905
+    CP 0x0A ; Jump if command is .CHA
+    JR NZ,ch1
+sr9:
+    POP HL
+    PUSH HL
+    LD B,(HL)
+    INC HL
+    LD C,(HL)
+    LD (0x5C49),BC
+    POP HL
+    CALL 0x1855
+    LD A,0x0D
+    RST 0x10
+    JR sr2
+ch1:
+    LD A,E
+    CP 0x1
+    JR Z,ch3
+    DEC A
+    LD B,A
+ch2:
+    DEC HL
+    DJNZ ch2
+ch3:
+    LD A,(0x5B00)
+    CP E
+    JR Z,ch4
+    JR C,ch4
+    LD A,E
+    LD (0x5B00),A
+    JR ch4
+ch4:
+    EX DE,HL
+    LD HL,0x5B02
+    LD B,0x0
+    LD A,(0x5B00)
+    LD C,A
+    LDIR
+    EX DE,HL
+    DEC HL
+    PUSH IX
+    POP BC
+    LD A,(0x5C81)
+    LD D,0
+    LD E,A
+    JP sr4
 pomsg:
     DEFB 0xA0
     DEFB "Micro Basic O.S. ANC SPAIN "
