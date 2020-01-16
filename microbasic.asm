@@ -138,10 +138,7 @@ offer:
 rren:
 rtr:
 rdel:
-raof:
-raon:
 rcopy:
-inter:
 
     DS 0xFA32-$,0  // 64050
 rnew:
@@ -187,7 +184,7 @@ rtv:
     LD BC,0x00A0
     EX DE,HL
     LDDR
-    LD A,(0x5C6A)   ; Activate Uppercase to easy new commands
+    LD A,(0x5C6A)   ; Activate Uppercase to easy new command
     SET 3,A
     LD (0x5C6A),A   ; FLAGS2 00000100 (Set CAPS LOCK)
     LD A,0x00
@@ -354,7 +351,117 @@ pomsg:
     DEFB "198"
     DEFB 0xB4
 ; gap
-    DS 0xFEF0-$,0
+    DS 0xFDAA-$,0
+raof:
+    RST 0x10
+    DEFW 0x0020
+    CALL 0x05B7
+    DI
+    LD A,0x3E
+    LD I,A
+    IM 1
+    EI
+    JP 0x05C1
+raon:
+    RST 0x10
+    DEFW 0x0020
+    CALL 0x05B7
+    DI
+    LD HL,vecin
+    LD DE,0xFE69
+    LD BC,0x0003
+    LDIR
+    LD A,0x09
+    LD I,A
+    IM 2
+    EI
+    JP 0x05C1
+trac0:  
+    DEFB 0x0
+inter:
+    RST 0x038
+    DI
+    PUSH AF
+    LD A,(0x0000)
+    CP 0xE1
+    JR NZ,rom1
+    POP AF
+    EI
+    RET
+rom1:
+    PUSH HL
+    PUSH DE
+    PUSH BC
+    LD A,(trac0)
+    CP 0x0
+    JR NZ,trac4
+    LD A,(0x5C82)
+    CP 0x20
+    JR NZ,trac3
+    LD A,(0x5C83)
+    CP 0x17
+    JR NZ,trac3
+    LD HL,0x5C08
+    LD A,(HL)
+    CP 0x0C
+    JR Z,trac3
+    LD HL,0x5C04
+    LD A,(HL)
+    CP 0x0D
+    JR Z,twrit
+    CP 0xFF
+    JR NZ,trac3
+twrit:
+    LD A,0x04
+    LD (trac0),A
+trac4:
+    LD A,(trac0)
+    DEC A
+    LD (trac0),A
+    LD HL,(0x5C49)
+    LD DE,0x000A
+    ADD HL,DE
+    LD BC,0xFC10
+    CALL trac1
+    CP 0x03
+    JR Z,trac3
+    LD BC,0xFF9C
+    CALL trac1
+    CP 0x02
+    JR Z,trac3
+    LD BC,0xFFF6
+    CALL trac1
+    CP 0x01
+    JR Z,trac3
+    LD BC,0xFFFF
+    CALL trac1
+    JR trac3
+trac1:
+    XOR A
+trac2:
+    ADD HL,BC
+    INC A
+    JR C,trac2
+    SBC HL,BC
+    DEC A
+    ADD A,0x30
+    LD (0x5C08),A
+    LD A,(0x5C3B)
+    SET 5,A
+    LD (0x5C3B),A
+    LD A,(trac0)
+    RET
+trac3:
+    POP BC
+    POP DE
+    POP HL
+    POP AF
+    EI
+    RET
+lbjp:
+    DEFB 0xFE,0xFE,0xFE,0xFE
+; gap
+    DS 0xFEF0-$
 rsave:
     LD A,0xF8
     JR sacon

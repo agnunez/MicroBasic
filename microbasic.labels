@@ -11,7 +11,7 @@ exten: equ 0x0000F73C
 stab: equ 0x0000F74D
 othcm: equ 0x0000F7E6
 vecin: equ 0x0000F74A
-inter: equ 0x0000F823
+inter: equ 0x0000FDD8
 finstab: equ 0x0000F7A4
 rtab: equ 0x0000F7AD
 comm: equ 0x0000F823
@@ -24,8 +24,8 @@ rtr: equ 0x0000F823
 rdel: equ 0x0000F823
 rfnd: equ 0x0000FCA9
 rcha: equ 0x0000FCB8
-raof: equ 0x0000F823
-raon: equ 0x0000F823
+raof: equ 0x0000FDAA
+raon: equ 0x0000FDBB
 rcopy: equ 0x0000F823
 rsave: equ 0x0000FEF0
 rload: equ 0x0000FEF4
@@ -64,6 +64,14 @@ sr9: equ 0x0000FD45
 ch3: equ 0x0000FD61
 ch2: equ 0x0000FD5E
 ch4: equ 0x0000FD6F
+trac0: equ 0x0000FDD7
+rom1: equ 0x0000FDE5
+trac4: equ 0x0000FE16
+trac3: equ 0x0000FE63
+twrit: equ 0x0000FE11
+trac1: equ 0x0000FE4A
+trac2: equ 0x0000FE4B
+lbjp: equ 0x0000FE69
 sacon: equ 0x0000FEFE
 texcm: equ 0x0000FF39
 ampli: equ 0x0000FF20
