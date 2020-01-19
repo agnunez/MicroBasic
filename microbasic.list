@@ -230,386 +230,665 @@
 216   FAEE C3 C1 05         JP 0x5C1
 217   FAF1              renum:
 218   FAF1 CD 99 1E         CALL 0x1E99
-219   FAF4
-220   FAF4
-221   FAF4              ; gap  DEL. Command
-222   FAF4 00 00 00...      DS 0xFC7C-$,0
-223   FC7C              rdel:
-224   FC7C D7               RST CALROM1
-225   FC7D 82 FC            DEFW delet
-226   FC7F C3 C1 05         JP 0x05C1
-227   FC82              delet:
-228   FC82 CD 99 1E         CALL 0x1E99
-229   FC85 C5               PUSH BC
-230   FC86 CD 99 1E         CALL 0x1E99
-231   FC89 C5               PUSH BC
-232   FC8A E1               POP HL
-233   FC8B D1               POP DE
-234   FC8C 7C               LD A,H
-235   FC8D B5               OR L
-236   FC8E C8               RET Z
-237   FC8F 7A               LD A,D
-238   FC90 B3               OR E
-239   FC91 C8               RET Z
-240   FC92 D5               PUSH DE
-241   FC93 CD 6E 19         CALL 0x196E
-242   FC96 E3               EX (SP),HL
-243   FC97 23               INC HL
-244   FC98 CD 6E 19         CALL 0x196E
-245   FC9B D1               POP DE
-246   FC9C A7               AND A
-247   FC9D ED 52            SBC HL, DE
-248   FC9F C8               RET Z
-249   FCA0 D8               RET C
-250   FCA1 44               LD B,H
-251   FCA2 4D               LD C,L
-252   FCA3 19               ADD HL,DE
-253   FCA4 EB               EX DE,HL
-254   FCA5 CD E8 19         CALL 0x19E8
-255   FCA8 C9               RET
-256   FCA9
-257   FCA9
-258   FCA9
-259   FCA9              ; gap
-260   FCA9                  DS 0xFCA9-$,0
-261   FCA9              rfnd:               ; .FND Find string in Basic lines command
-262   FCA9 D7               RST CALROM1
-263   FCAA 20 00            DEFW NEXCHA     ; Parse a character
-264   FCAC D7               RST CALROM1        ; Parse to end of string
-265   FCAD 8C 1C            DEFW 0x1C8C
-266   FCAF CD B7 05         CALL 0x05B7     ; Exit editor
-267   FCB2 D7               RST CALROM1
-268   FCB3 E3 FC            DEFW sr0        ; call sr0 in ROM1 0xFCE3
-269   FCB5 C3 C1 05         JP 0x05C1       ; command exit
-270   FCB8              rcha:               ; .CHA Change string command
-271   FCB8 D7               RST CALROM1
-272   FCB9 20 00            DEFW NEXCHA     ; Parse next character
-273   FCBB D7               RST CALROM1
-274   FCBC 8C 1C            DEFW 0x1C8C     ; Parse to end of string in ROM1
-275   FCBE FE CC            CP 0xCC
-276   FCC0 C2 F0 01         JP NZ,0x01F0    ; Error if  we do not have a 'TO' separator
-277   FCC3 D7               RST CALROM1
-278   FCC4 20 00            DEFW NEXCHA     ; Next character
-279   FCC6 D7               RST CALROM1        ; Parse a character string
-280   FCC7 8C 1C            DEFW 0x1C8C
-281   FCC9 CD B7 05         CALL 0x05B7     ; Exit editor
-282   FCCC D7               RST CALROM1        ; call ch0 with ROM1
-283   FCCD D2 FC            DEFW ch0
-284   FCCF C3 C1 05         JP 0x05C1       ; Command exit
-285   FCD2              ch0:
-286   FCD2 CD F1 2B         CALL 0x2BF1     ; DE = last string start
-287   FCD5 79               LD A,C          ; BC = last string length
-288   FCD6 FE 00            CP 0            ; length is 0?
-289   FCD8 C8               RET Z           ; Resume Basic
-290   FCD9 21 00 5B         LD HL,0x5B00
-291   FCDC 71               LD (HL),C       ; second string length into 0x5B00
-292   FCDD 23               INC HL
-293   FCDE 70               LD (HL),B
-294   FCDF 23               INC HL
-295   FCE0 EB               EX DE, HL       ; Copy in 0x5B02 second string
-296   FCE1 ED B0            LDIR
-297   FCE3              sr0:
-298   FCE3 CD F1 2B         CALL 0x2BF1
-299   FCE6 D5               PUSH DE
-300   FCE7 DD E1            POP IX
-301   FCE9 79               LD A,C
-302   FCEA 32 81 5C         LD (var01),A
-303   FCED              sr1:
-304   FCED FD CB 02 86      RES 0,(IY+2)
-305   FCF1 2A 53 5C         LD HL,(0x5C53)
-306   FCF4              sr2:
-307   FCF4 3A 81 5C         LD A,(var01)
-308   FCF7 5F               LD E,A
-309   FCF8 FE 00            CP 0x0
-310   FCFA C8               RET Z
-311   FCFB E5               PUSH HL
-312   FCFC              sr3:
-313   FCFC DD E5            PUSH IX
-314   FCFE C1               POP BC
-315   FCFF 16 00            LD D,0x0
-316   FD01 23               INC HL
-317   FD02 23               INC HL
-318   FD03 23               INC HL
-319   FD04              sr4:
-320   FD04 23               INC HL
-321   FD05 D5               PUSH DE
-322   FD06 ED 5B 4B 5C      LD DE,(0x5C4B)
-323   FD0A AF               XOR A
-324   FD0B A7               AND A
-325   FD0C ED 52            SBC HL,DE
-326   FD0E 19               ADD HL,DE
-327   FD0F D1               POP DE
-328   FD10 38 02            JR C,sr5
-329   FD12 E1               POP HL
-330   FD13 C9               RET
-331   FD14              sr5:
-332   FD14 7E               LD A,(HL)
-333   FD15 FE 0D            CP 0x0D
-334   FD17 20 05            JR NZ,sr6
-335   FD19 23               INC HL
-336   FD1A C1               POP BC
-337   FD1B E5               PUSH HL
-338   FD1C 18 DE            JR sr3
-339   FD1E              sr6:
-340   FD1E CD B6 18         CALL 0x18B6
-341   FD21 20 11            JR NZ,sr8
-342   FD23 2B               DEC HL
-343   FD24              sr7:
-344   FD24 7A               LD A,D
-345   FD25 FE 00            CP 0x0
-346   FD27 28 04            JR Z,sr71
-347   FD29 42               LD B,D
-348   FD2A              sr70:
-349   FD2A 2B               DEC HL
-350   FD2B 10 FD            DJNZ sr70
-351   FD2D              sr71:
-352   FD2D DD E5            PUSH IX
-353   FD2F C1               POP BC
-354   FD30 16 00            LD D,0
-355   FD32 18 D0            JR sr4
-356   FD34              sr8:
-357   FD34 0A               LD A,(BC)
-358   FD35 BE               CP (HL)
-359   FD36 20 EC            JR NZ,sr7
-360   FD38 03               INC BC
-361   FD39 14               INC D
-362   FD3A 7A               LD A,D
-363   FD3B BB               CP E
-364   FD3C 20 C6            JR NZ,sr4
-365   FD3E 3A B0 5C         LD A,(0x5CB0)
-366   FD41 FE 0A            CP 0x0A ; Jump if command is .CHA
-367   FD43 20 12            JR NZ,ch1
-368   FD45              sr9:
-369   FD45 E1               POP HL
-370   FD46 E5               PUSH HL
-371   FD47 46               LD B,(HL)
-372   FD48 23               INC HL
-373   FD49 4E               LD C,(HL)
-374   FD4A ED 43 49 5C      LD (0x5C49),BC
-375   FD4E E1               POP HL
-376   FD4F CD 55 18         CALL 0x1855
-377   FD52 3E 0D            LD A,0x0D
-378   FD54 D7               RST CALROM1
-379   FD55 18 9D            JR sr2
-380   FD57              ch1:
-381   FD57 7B               LD A,E
-382   FD58 FE 01            CP 0x1
-383   FD5A 28 05            JR Z,ch3
-384   FD5C 3D               DEC A
-385   FD5D 47               LD B,A
-386   FD5E              ch2:
-387   FD5E 2B               DEC HL
-388   FD5F 10 FD            DJNZ ch2
-389   FD61              ch3:
-390   FD61 3A 00 5B         LD A,(0x5B00)
-391   FD64 BB               CP E
-392   FD65 28 08            JR Z,ch4
-393   FD67 38 06            JR C,ch4
-394   FD69 7B               LD A,E
-395   FD6A 32 00 5B         LD (0x5B00),A
-396   FD6D 18 00            JR ch4
-397   FD6F              ch4:
-398   FD6F EB               EX DE,HL
-399   FD70 21 02 5B         LD HL,0x5B02
-400   FD73 06 00            LD B,0x0
-401   FD75 3A 00 5B         LD A,(0x5B00)
-402   FD78 4F               LD C,A
-403   FD79 ED B0            LDIR
-404   FD7B EB               EX DE,HL
-405   FD7C 2B               DEC HL
-406   FD7D DD E5            PUSH IX
-407   FD7F C1               POP BC
-408   FD80 3A 81 5C         LD A,(0x5C81)
-409   FD83 16 00            LD D,0
-410   FD85 5F               LD E,A
-411   FD86 C3 04 FD         JP sr4
-412   FD89              pomsg:
-413   FD89 A0               DEFB 0xA0
-414   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
-414   FD8E 6F 20 42 61
-414   FD92 73 69 63 20
-414   FD96 4F 2E 53 2E
-414   FD9A 20 41 4E 43
-414   FD9E 20 53 50 41
-414   FDA2 49 4E 20
-415   FDA5 7F               DEFB 0x7F
-416   FDA6 31 39 38         DEFB "198"
-417   FDA9 B4               DEFB 0xB4
-418   FDAA              raof:
-419   FDAA D7               RST CALROM1
-420   FDAB 20 00            DEFW NEXCHA
-421   FDAD CD B7 05         CALL 0x05B7
-422   FDB0 F3               DI
-423   FDB1 3E 3E            LD A,0x3E
-424   FDB3 ED 47            LD I,A
-425   FDB5 ED 56            IM 1
-426   FDB7 FB               EI
-427   FDB8 C3 C1 05         JP 0x05C1
-428   FDBB              raon:
-429   FDBB D7               RST CALROM1
-430   FDBC 20 00            DEFW NEXCHA
-431   FDBE CD B7 05         CALL 0x05B7
-432   FDC1 F3               DI
-433   FDC2 21 4A F7         LD HL,vecin
-434   FDC5 11 69 FE         LD DE,0xFE69
-435   FDC8 01 03 00         LD BC,0x0003
-436   FDCB ED B0            LDIR
-437   FDCD 3E 09            LD A,0x09
-438   FDCF ED 47            LD I,A
-439   FDD1 ED 5E            IM 2
-440   FDD3 FB               EI
-441   FDD4 C3 C1 05         JP 0x05C1
-442   FDD7              trac0:
-443   FDD7 00               DEFB 0x0
-444   FDD8              inter:
-445   FDD8 FF               RST 0x038
-446   FDD9 F3               DI
-447   FDDA F5               PUSH AF
-microbasic.asm(448): warning: Accessing low memory address 0x0000, is it ok?: LD A,(0x0000)   
-448   FDDB 3A 00 00         LD A,(0x0000)   ; Identify which ROM is active
-449   FDDE FE E1            CP 0xE1
-450   FDE0 20 03            JR NZ,rom1      ; If we are in ROM2, just exit from ISR
-451   FDE2 F1               POP AF
-452   FDE3 FB               EI
-453   FDE4 C9               RET
-454   FDE5              rom1:
-455   FDE5 E5               PUSH HL
-456   FDE6 D5               PUSH DE
-457   FDE7 C5               PUSH BC
-458   FDE8 3A D7 FD         LD A,(trac0)
-459   FDEB FE 00            CP 0x0
-460   FDED 20 27            JR NZ,trac4
-461   FDEF 3A 82 5C         LD A,(0x5C82)   ; ECHO-E Column &line number. End of input
-462   FDF2 FE 20            CP 0x20
-463   FDF4 20 6D            JR NZ,trac3
-464   FDF6 3A 83 5C         LD A,(0x5C83)   ;
-465   FDF9 FE 17            CP 0x17
-466   FDFB 20 66            JR NZ,trac3
-467   FDFD 21 08 5C         LD HL,0x5C08    ; Last key pressed
-468   FE00 7E               LD A,(HL)
-469   FE01 FE 0C            CP 0x0C
-470   FE03 28 5E            JR Z,trac3
-471   FE05 21 04 5C         LD HL,0x5C04
-472   FE08 7E               LD A,(HL)
-473   FE09 FE 0D            CP 0x0D
-474   FE0B 28 04            JR Z,twrit
-475   FE0D FE FF            CP 0xFF
-476   FE0F 20 52            JR NZ,trac3
-477   FE11              twrit:
-478   FE11 3E 04            LD A,0x04
-479   FE13 32 D7 FD         LD (trac0),A
-480   FE16              trac4:
-481   FE16 3A D7 FD         LD A,(trac0)
-482   FE19 3D               DEC A
-483   FE1A 32 D7 FD         LD (trac0),A
-484   FE1D 2A 49 5C         LD HL,(0x5C49)
-485   FE20 11 0A 00         LD DE,0x000A
-486   FE23 19               ADD HL,DE
-487   FE24 01 10 FC         LD BC,0xFC10
-488   FE27 CD 4A FE         CALL trac1
-489   FE2A FE 03            CP 0x03
-490   FE2C 28 35            JR Z,trac3
-491   FE2E 01 9C FF         LD BC,0xFF9C
-492   FE31 CD 4A FE         CALL trac1
-493   FE34 FE 02            CP 0x02
-494   FE36 28 2B            JR Z,trac3
-495   FE38 01 F6 FF         LD BC,0xFFF6
-496   FE3B CD 4A FE         CALL trac1
-497   FE3E FE 01            CP 0x01
-498   FE40 28 21            JR Z,trac3
-499   FE42 01 FF FF         LD BC,0xFFFF
-500   FE45 CD 4A FE         CALL trac1
-501   FE48 18 19            JR trac3
-502   FE4A              trac1:
-503   FE4A AF               XOR A
-504   FE4B              trac2:
-505   FE4B 09               ADD HL,BC
-506   FE4C 3C               INC A
-507   FE4D 38 FC            JR C,trac2
-508   FE4F ED 42            SBC HL,BC
-509   FE51 3D               DEC A
-510   FE52 C6 30            ADD A,0x30
-511   FE54 32 08 5C         LD (0x5C08),A
-512   FE57 3A 3B 5C         LD A,(0x5C3B)
-513   FE5A CB EF            SET 5,A
-514   FE5C 32 3B 5C         LD (0x5C3B),A
-515   FE5F 3A D7 FD         LD A,(trac0)
-516   FE62 C9               RET
-517   FE63              trac3:
-518   FE63 C1               POP BC
-519   FE64 D1               POP DE
-520   FE65 E1               POP HL
-521   FE66 F1               POP AF
-522   FE67 FB               EI
-523   FE68 C9               RET
-524   FE69              lbjp:
-525   FE69 FE FE FE FE      DEFB 0xFE,0xFE,0xFE,0xFE
-526   FE6D              ; Screen$
-527   FE6D              ; gap
-528   FE6D 00 00 00...      DS 0xFEF0-$
-529   FEF0              rsave:
-530   FEF0 3E F8            LD A,0xF8
-531   FEF2 18 0A            JR sacon
-532   FEF4              rload:
-533   FEF4 3E EF            LD A,0xEF
-534   FEF6 18 06            JR sacon
-535   FEF8              rvery:
-536   FEF8 3E D6            LD A,0xD6
-537   FEFA 18 02            JR sacon
-538   FEFC              rmerg:
-539   FEFC 3E D5            LD A,0xD5
-540   FEFE              sacon:
-541   FEFE 01 0A 00         LD BC,0x0A
-542   FF01 11 39 FF         LD DE,texcm
-543   FF04 18 1A            JR ampli
-544   FF06              rmove:
-545   FF06 3E D1            LD A,0xD1
-546   FF08 18 06            JR mocon
-547   FF0A              reras:
-548   FF0A 3E D2            LD A,0xD2
-549   FF0C 18 02            JR mocon
-550   FF0E              rform:
-551   FF0E 3E D0            LD a,0xD0
-552   FF10              mocon:
-553   FF10 11 43 FF         LD DE, texsa
-554   FF13 01 09 00         LD BC,0x9
-555   FF16 18 08            JR ampli
-556   FF18              ropen:
-557   FF18 3E D3            LD A,0xD3
-558   FF1A 11 4C FF         LD DE,texop
-559   FF1D 01 0B 00         LD BC, 0x0B
-560   FF20              ampli:
-561   FF20 D5               PUSH DE
-562   FF21 C5               PUSH BC
-563   FF22 12               LD (DE),A
-564   FF23 D7               RST CALROM1
-565   FF24 20 00            DEFW NEXCHA
-566   FF26 C1               POP BC
-567   FF27 C5               PUSH BC
-568   FF28 0B               DEC BC
-569   FF29 D7               RST CALROM1
-570   FF2A 55 16            DEFW 0x1655
-571   FF2C C1               POP BC
-572   FF2D D1               POP DE
-573   FF2E EB               EX DE,HL
-574   FF2F ED B0            LDIR
-575   FF31 EB               EX DE,HL
-576   FF32 2B               DEC HL
-577   FF33 22 5B 5C         LD (0x5C5B),HL
-578   FF36 C3 F0 01         JP 0x01F0
-579   FF39              texcm:
-580   FF39 F8               DEFB 0xF8
-581   FF3A              texmd:
-582   FF3A 2A 22 6D 22      DEFB "*",0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
-582   FF3E 3B 31 3B 22
-582   FF42 22
-583   FF43              texsa
-584   FF43 D1 22 6D 22      DEFB 0xD1,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
-584   FF47 3B 31 3B 22
-584   FF4B 22
-585   FF4C              texop:
-586   FF4C D3 38 3B 22      DEFB 0xD3,"8",0x3B,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
-586   FF50 6D 22 3B 31
-586   FF54 3B 22 22
-587   FF57
+219   FAF4 C5               PUSH BC
+220   FAF5 E1               POP HL
+221   FAF6 22 02 5B         LD (0x5B02),HL
+222   FAF9 CD 99 1E         CALL 0x1E99
+223   FAFC C5               PUSH BC
+224   FAFD E1               POP HL
+225   FAFE 22 00 5B         LD (0x5B00),HL
+226   FB01 7C               LD A,H
+227   FB02 B5               OR L
+228   FB03 C8               RET Z
+229   FB04 2A 02 5B         LD HL,(0x5B02)
+230   FB07 7C               LD A,H
+231   FB08 B5               OR L
+232   FB09 C8               RET Z
+233   FB0A 2A 53 5C         LD HL,(0x5C53)
+234   FB0D ED 5B 00 5B      LD DE,(0x5B00)
+235   FB11              nxtln:
+236   FB11 CD 70 FC         CALL chck
+237   FB14 30 16            JR NC,fndgt
+238   FB16 46               LD B,(HL)
+239   FB17 72               LD (HL),D
+240   FB18 23               INC HL
+241   FB19 4E               LD C,(HL)
+242   FB1A 73               LD (HL),E
+243   FB1B 23               INC HL
+244   FB1C 71               LD (HL),C
+245   FB1D 34               INC (HL)
+246   FB1E 70               LD (HL),B
+247   FB1F 23               INC HL
+248   FB20 E5               PUSH HL
+249   FB21 2A 02 5B         LD HL,(0x5B02)
+250   FB24 19               ADD HL,DE
+251   FB25 EB               EX DE,HL
+252   FB26 E1               POP HL
+253   FB27 CD 65 FC         CALL eol
+254   FB2A 18 E5            JR nxtln
+255   FB2C              fndgt:
+256   FB2C 2A 33 5C         LD HL,(0x5C33)
+257   FB2F 23               INC HL
+258   FB30 23               INC HL
+259   FB31 23               INC HL
+260   FB32 23               INC HL
+261   FB33              srch:
+262   FB33 CD 0F FC         CALL fnd
+263   FB36 D2 DC FB         JP NC,rstr
+264   FB39 54               LD D,H
+265   FB3A 5D               LD E,L
+266   FB3B 06 00            LD B,0x0
+267   FB3D              nxtdg:
+268   FB3D 04               INC B
+269   FB3E 23               INC HL
+270   FB3F 7E               LD A,(HL)
+271   FB40 FE 2C            CP ","
+272   FB42 20 01            JR NZ,cntn
+273   FB44              fndnx:
+274   FB44 EB               EX DE,HL
+275   FB45              cntn:
+276   FB45 18 EC            JR srch
+277   FB47 FE 0E            CP 0x0E ; 14 id of floating point
+278   FB49 20 F2            JR NZ,nxtdg
+279   FB4B 23               INC HL
+280   FB4C 23               INC HL
+281   FB4D 23               INC HL
+282   FB4E 23               INC HL
+283   FB4F 23               INC HL
+284   FB50 23               INC HL
+285   FB51 7E               LD A,(HL)
+286   FB52 FE 3A            CP ":"
+287   FB54 28 04            JR Z,fou
+288   FB56 FE 0D            CP 0x0D ; 13
+289   FB58 20 EA            JR NZ,fndnx
+290   FB5A              fou:
+291   FB5A 78               LD A,B
+292   FB5B              cmpr:
+293   FB5B FE 04            CP 0X04
+294   FB5D 28 10            JR Z,clclt
+295   FB5F 20 E3            JR NZ,fndnx
+296   FB61 D5               PUSH DE
+297   FB62 62               LD H,D
+298   FB63 6B               LD L,E
+299   FB64 F5               PUSH AF
+300   FB65 3E 30            LD A,"0"
+301   FB67 CD 00 0F         CALL 0X0F00
+302   FB6A F1               POP AF
+303   FB6B 3C               INC A
+304   FB6C D1               POP DE
+305   FB6D 18 EC            JR cmpr
+306   FB6F              clclt:
+307   FB6F 42               LD B,D
+308   FB70 3B               DEC SP      ; LD C,E
+309   FB71 D5               PUSH DE
+310   FB72 21 00 00         LD HL,0x0000
+311   FB75 11 E8 03         LD DE,0x03E8    ; 1000
+312   FB78 CD 06 FC         CALL ladd
+313   FB7B 11 64 00         LD DE, 0x0064   ; 100
+314   FB7E CD 06 FC         CALL ladd
+315   FB81 1E 0A            LD E,0x0A       ; 10
+316   FB83 CD 06 FC         CALL ladd
+317   FB86 0A               LD A,(BC)
+318   FB87 D6 30            SUB "0"
+319   FB89 5F               LD E,A
+320   FB8A 19               ADD HL,DE
+321   FB8B 44               LD B,H
+322   FB8C 4D               LD C,L
+323   FB8D 2A 53 5C         LD HL,(0x5C53)
+324   FB90              fndln:
+325   FB90 23               INC HL
+326   FB91 23               INC HL
+327   FB92              eop:
+328   FB92 CD 70 FC         CALL chck
+329   FB95 38 03            JR C,xsts
+330   FB97 E1               POP HL
+331   FB98 18 99            JR srch
+332   FB9A              xsts:
+333   FB9A 7E               LD A,(HL)
+334   FB9B B9               CP C
+335   FB9C 30 07            JR NC,nxtbt
+336   FB9E 23               INC HL
+337   FB9F              wrng:
+338   FB9F 23               INC HL
+339   FBA0 CD 65 FC         CALL eol
+340   FBA3 18 EB            JR fndln
+341   FBA5              nxtbt:
+342   FBA5 23               INC HL
+343   FBA6 7E               LD A,(HL)
+344   FBA7 B8               CP B
+345   FBA8 38 F5            JR C,wrng
+346   FBAA 2B               DEC HL
+347   FBAB 2B               DEC HL
+348   FBAC 4E               LD C,(HL)
+349   FBAD 2B               DEC HL
+350   FBAE 66               LD H,(HL)
+351   FBAF 69               LD L,C
+352   FBB0 C1               POP BC
+353   FBB1 C5               PUSH BC
+354   FBB2 E5               PUSH HL
+355   FBB3 11 E8 03         LD DE,0X03E8 ; 1000
+356   FBB6 CD F8 FB         CALL nsrt
+357   FBB9 11 64 00         LD DE,0x0064
+358   FBBC CD F8 FB         CALL nsrt
+359   FBBF 1E 0A            LD E,0x0A
+360   FBC1 CD F8 FB         CALL nsrt
+361   FBC4 1E 01            LD E,1
+362   FBC6 CD F8 FB         CALL nsrt
+363   FBC9 03               INC BC
+364   FBCA 97               SUB A
+365   FBCB 02               LD (BC),A
+366   FBCC 03               INC BC
+367   FBCD 02               LD (BC),A
+368   FBCE 03               INC BC
+369   FBCF E1               POP HL
+370   FBD0 7D               LD A,L
+371   FBD1 02               LD (BC),A
+372   FBD2 03               INC BC
+373   FBD3 7C               LD A,H
+374   FBD4 02               LD (BC),A
+375   FBD5 03               INC BC
+376   FBD6 97               SUB A
+377   FBD7 02               LD (BC),A
+378   FBD8 E1               POP HL
+379   FBD9 C3 33 FB         JP srch
+380   FBDC              rstr:
+381   FBDC 2A 53 5C         LD HL,(0x5C53)
+382   FBDF              fllw:
+383   FBDF 23               INC HL
+384   FBE0 23               INC HL
+385   FBE1 CD 70 FC         CALL chck
+386   FBE4 D0               RET NC
+387   FBE5 44               LD B,H
+388   FBE6 4D               LD C,L
+389   FBE7 CD 65 FC         CALL eol
+390   FBEA E5               PUSH HL
+391   FBEB A7               AND A
+392   FBEC ED 42            SBC HL,BC
+393   FBEE 2B               DEC HL
+394   FBEF 2B               DEC HL
+395   FBF0 7D               LD A,L
+396   FBF1 02               LD (BC),A
+397   FBF2 03               INC BC
+398   FBF3 7C               LD A,H
+399   FBF4 02               LD (BC),A
+400   FBF5 E1               POP HL
+401   FBF6 18 E7            JR fllw
+402   FBF8              nsrt:
+403   FBF8 3E 30            LD A,0x30   ; +40
+404   FBFA              sbtr:
+405   FBFA A7               AND A
+406   FBFB ED 52            SBC HL,DE
+407   FBFD 38 03            JR C,poke
+408   FBFF 3C               INC A
+409   FC00 18 F8            JR sbtr
+410   FC02              poke:
+411   FC02 19               ADD HL,DE
+412   FC03 02               LD (BC),A
+413   FC04 03               INC BC
+414   FC05 C9               RET
+415   FC06              ladd:
+416   FC06 0A               LD A,(BC)
+417   FC07 03               INC BC
+418   FC08 D6 2F            SUB 0x2F    ;  +47
+419   FC0A              repea:
+420   FC0A 3D               DEC A
+421   FC0B C8               RET Z
+422   FC0C 19               ADD HL,DE
+423   FC0D 18 FB            JR repea
+424   FC0F              fnd:
+425   FC0F 7E               LD A,(HL)
+426   FC10 CD 70 FC         CALL chck
+427   FC13 D0               RET NC
+428   FC14 FE EA            CP 0xEA
+429   FC16 20 0D            JR NZ,ntrem
+430   FC18              fntr:
+431   FC18 23               INC HL
+432   FC19 7E               LD A,(HL)
+433   FC1A FE 0D            CP 0x0D     ; 13
+434   FC1C 20 FA            JR NZ,fntr
+435   FC1E              ncrs:
+436   FC1E 23               INC HL
+437   FC1F 23               INC HL
+438   FC20 23               INC HL
+439   FC21 23               INC HL
+440   FC22 23               INC HL
+441   FC23 18 EA            JR fnd
+442   FC25              ntrem:
+443   FC25 FE 22            CP 0x22
+444   FC27 20 09            JR NZ,nstrg
+445   FC29              nxchr:
+446   FC29 23               INC HL
+447   FC2A 7E               LD A,(HL)
+448   FC2B FE 22            CP 0X22
+449   FC2D 20 FA            JR NZ, nxchr
+450   FC2F 23               INC HL
+451   FC30 18 DD            JR fnd
+452   FC32              nstrg:
+453   FC32 FE 0D            CP 0x0D
+454   FC34 28 E8            JR Z,ncrs
+455   FC36 CD B6 18         CALL 0x18B6
+456   FC39 28 D4            JR Z,fnd
+457   FC3B FE ED            CP 0xED
+458   FC3D 28 1B            JR Z,chkdg
+459   FC3F FE EC            CP 0xEC
+460   FC41 28 17            JR Z,chkdg
+461   FC43 FE F7            CP 0xF7
+462   FC45 28 13            JR Z,chkdg
+463   FC47 FE F0            CP 0xF0
+464   FC49 28 0F            JR Z,chkdg
+465   FC4B FE E5            CP 0xE5
+466   FC4D 28 0B            JR Z,chkdg
+467   FC4F FE E1            CP 0xE1
+468   FC51 28 07            JR Z,chkdg
+469   FC53 FE CA            CP 0xCA
+470   FC55 28 03            JR Z,chkdg
+471   FC57 23               INC HL
+472   FC58 18 B5            JR fnd
+473   FC5A              chkdg:
+474   FC5A 23               INC HL
+475   FC5B 7E               LD A,(HL)
+476   FC5C FE 30            CP 0x30
+477   FC5E 38 AF            JR C,fnd ; JR Z,fnd
+478   FC60 FE 3A            CP 0x3A
+479   FC62 30 AB            JR NC,fnd
+480   FC64 C9               RET
+481   FC65              eol:
+482   FC65 7E               LD A,(HL)
+483   FC66              again:
+484   FC66 CD B6 18         CALL 0x18B6
+485   FC69 28 FB            JR Z,again
+486   FC6B FE 0D            CP 0x0D
+487   FC6D 23               INC HL
+488   FC6E 20 F5            JR NZ,eol
+489   FC70              chck:
+490   FC70 E5               PUSH HL
+491   FC71 D5               PUSH DE
+492   FC72                  ;LD DE,(0x4B5B)
+493   FC72 ED 5B 4B 5C      DEFB 0xED,0x5B,0x4B,0x5C
+494   FC76 A7               AND A
+495   FC77 ED 52            SBC HL,DE
+496   FC79 D1               POP DE
+497   FC7A E1               POP HL
+498   FC7B C9               RET
+499   FC7C
+500   FC7C              ; gap  DEL. Command
+501   FC7C                  DS 0xFC7C-$,0
+502   FC7C              rdel:
+503   FC7C D7               RST CALROM1
+504   FC7D 82 FC            DEFW delet
+505   FC7F C3 C1 05         JP 0x05C1
+506   FC82              delet:
+507   FC82 CD 99 1E         CALL 0x1E99
+508   FC85 C5               PUSH BC
+509   FC86 CD 99 1E         CALL 0x1E99
+510   FC89 C5               PUSH BC
+511   FC8A E1               POP HL
+512   FC8B D1               POP DE
+513   FC8C 7C               LD A,H
+514   FC8D B5               OR L
+515   FC8E C8               RET Z
+516   FC8F 7A               LD A,D
+517   FC90 B3               OR E
+518   FC91 C8               RET Z
+519   FC92 D5               PUSH DE
+520   FC93 CD 6E 19         CALL 0x196E
+521   FC96 E3               EX (SP),HL
+522   FC97 23               INC HL
+523   FC98 CD 6E 19         CALL 0x196E
+524   FC9B D1               POP DE
+525   FC9C A7               AND A
+526   FC9D ED 52            SBC HL, DE
+527   FC9F C8               RET Z
+528   FCA0 D8               RET C
+529   FCA1 44               LD B,H
+530   FCA2 4D               LD C,L
+531   FCA3 19               ADD HL,DE
+532   FCA4 EB               EX DE,HL
+533   FCA5 CD E8 19         CALL 0x19E8
+534   FCA8 C9               RET
+535   FCA9
+536   FCA9
+537   FCA9
+538   FCA9              ; gap
+539   FCA9                  DS 0xFCA9-$,0
+540   FCA9              rfnd:               ; .FND Find string in Basic lines command
+541   FCA9 D7               RST CALROM1
+542   FCAA 20 00            DEFW NEXCHA     ; Parse a character
+543   FCAC D7               RST CALROM1        ; Parse to end of string
+544   FCAD 8C 1C            DEFW 0x1C8C
+545   FCAF CD B7 05         CALL 0x05B7     ; Exit editor
+546   FCB2 D7               RST CALROM1
+547   FCB3 E3 FC            DEFW sr0        ; call sr0 in ROM1 0xFCE3
+548   FCB5 C3 C1 05         JP 0x05C1       ; command exit
+549   FCB8              rcha:               ; .CHA Change string command
+550   FCB8 D7               RST CALROM1
+551   FCB9 20 00            DEFW NEXCHA     ; Parse next character
+552   FCBB D7               RST CALROM1
+553   FCBC 8C 1C            DEFW 0x1C8C     ; Parse to end of string in ROM1
+554   FCBE FE CC            CP 0xCC
+555   FCC0 C2 F0 01         JP NZ,0x01F0    ; Error if  we do not have a 'TO' separator
+556   FCC3 D7               RST CALROM1
+557   FCC4 20 00            DEFW NEXCHA     ; Next character
+558   FCC6 D7               RST CALROM1        ; Parse a character string
+559   FCC7 8C 1C            DEFW 0x1C8C
+560   FCC9 CD B7 05         CALL 0x05B7     ; Exit editor
+561   FCCC D7               RST CALROM1        ; call ch0 with ROM1
+562   FCCD D2 FC            DEFW ch0
+563   FCCF C3 C1 05         JP 0x05C1       ; Command exit
+564   FCD2              ch0:
+565   FCD2 CD F1 2B         CALL 0x2BF1     ; DE = last string start
+566   FCD5 79               LD A,C          ; BC = last string length
+567   FCD6 FE 00            CP 0            ; length is 0?
+568   FCD8 C8               RET Z           ; Resume Basic
+569   FCD9 21 00 5B         LD HL,0x5B00
+570   FCDC 71               LD (HL),C       ; second string length into 0x5B00
+571   FCDD 23               INC HL
+572   FCDE 70               LD (HL),B
+573   FCDF 23               INC HL
+574   FCE0 EB               EX DE, HL       ; Copy in 0x5B02 second string
+575   FCE1 ED B0            LDIR
+576   FCE3              sr0:
+577   FCE3 CD F1 2B         CALL 0x2BF1
+578   FCE6 D5               PUSH DE
+579   FCE7 DD E1            POP IX
+580   FCE9 79               LD A,C
+581   FCEA 32 81 5C         LD (var01),A
+582   FCED              sr1:
+583   FCED FD CB 02 86      RES 0,(IY+2)
+584   FCF1 2A 53 5C         LD HL,(0x5C53)
+585   FCF4              sr2:
+586   FCF4 3A 81 5C         LD A,(var01)
+587   FCF7 5F               LD E,A
+588   FCF8 FE 00            CP 0x0
+589   FCFA C8               RET Z
+590   FCFB E5               PUSH HL
+591   FCFC              sr3:
+592   FCFC DD E5            PUSH IX
+593   FCFE C1               POP BC
+594   FCFF 16 00            LD D,0x0
+595   FD01 23               INC HL
+596   FD02 23               INC HL
+597   FD03 23               INC HL
+598   FD04              sr4:
+599   FD04 23               INC HL
+600   FD05 D5               PUSH DE
+601   FD06 ED 5B 4B 5C      LD DE,(0x5C4B)
+602   FD0A AF               XOR A
+603   FD0B A7               AND A
+604   FD0C ED 52            SBC HL,DE
+605   FD0E 19               ADD HL,DE
+606   FD0F D1               POP DE
+607   FD10 38 02            JR C,sr5
+608   FD12 E1               POP HL
+609   FD13 C9               RET
+610   FD14              sr5:
+611   FD14 7E               LD A,(HL)
+612   FD15 FE 0D            CP 0x0D
+613   FD17 20 05            JR NZ,sr6
+614   FD19 23               INC HL
+615   FD1A C1               POP BC
+616   FD1B E5               PUSH HL
+617   FD1C 18 DE            JR sr3
+618   FD1E              sr6:
+619   FD1E CD B6 18         CALL 0x18B6
+620   FD21 20 11            JR NZ,sr8
+621   FD23 2B               DEC HL
+622   FD24              sr7:
+623   FD24 7A               LD A,D
+624   FD25 FE 00            CP 0x0
+625   FD27 28 04            JR Z,sr71
+626   FD29 42               LD B,D
+627   FD2A              sr70:
+628   FD2A 2B               DEC HL
+629   FD2B 10 FD            DJNZ sr70
+630   FD2D              sr71:
+631   FD2D DD E5            PUSH IX
+632   FD2F C1               POP BC
+633   FD30 16 00            LD D,0
+634   FD32 18 D0            JR sr4
+635   FD34              sr8:
+636   FD34 0A               LD A,(BC)
+637   FD35 BE               CP (HL)
+638   FD36 20 EC            JR NZ,sr7
+639   FD38 03               INC BC
+640   FD39 14               INC D
+641   FD3A 7A               LD A,D
+642   FD3B BB               CP E
+643   FD3C 20 C6            JR NZ,sr4
+644   FD3E 3A B0 5C         LD A,(0x5CB0)
+645   FD41 FE 0A            CP 0x0A ; Jump if command is .CHA
+646   FD43 20 12            JR NZ,ch1
+647   FD45              sr9:
+648   FD45 E1               POP HL
+649   FD46 E5               PUSH HL
+650   FD47 46               LD B,(HL)
+651   FD48 23               INC HL
+652   FD49 4E               LD C,(HL)
+653   FD4A ED 43 49 5C      LD (0x5C49),BC
+654   FD4E E1               POP HL
+655   FD4F CD 55 18         CALL 0x1855
+656   FD52 3E 0D            LD A,0x0D
+657   FD54 D7               RST CALROM1
+658   FD55 18 9D            JR sr2
+659   FD57              ch1:
+660   FD57 7B               LD A,E
+661   FD58 FE 01            CP 0x1
+662   FD5A 28 05            JR Z,ch3
+663   FD5C 3D               DEC A
+664   FD5D 47               LD B,A
+665   FD5E              ch2:
+666   FD5E 2B               DEC HL
+667   FD5F 10 FD            DJNZ ch2
+668   FD61              ch3:
+669   FD61 3A 00 5B         LD A,(0x5B00)
+670   FD64 BB               CP E
+671   FD65 28 08            JR Z,ch4
+672   FD67 38 06            JR C,ch4
+673   FD69 7B               LD A,E
+674   FD6A 32 00 5B         LD (0x5B00),A
+675   FD6D 18 00            JR ch4
+676   FD6F              ch4:
+677   FD6F EB               EX DE,HL
+678   FD70 21 02 5B         LD HL,0x5B02
+679   FD73 06 00            LD B,0x0
+680   FD75 3A 00 5B         LD A,(0x5B00)
+681   FD78 4F               LD C,A
+682   FD79 ED B0            LDIR
+683   FD7B EB               EX DE,HL
+684   FD7C 2B               DEC HL
+685   FD7D DD E5            PUSH IX
+686   FD7F C1               POP BC
+687   FD80 3A 81 5C         LD A,(0x5C81)
+688   FD83 16 00            LD D,0
+689   FD85 5F               LD E,A
+690   FD86 C3 04 FD         JP sr4
+691   FD89              pomsg:
+692   FD89 A0               DEFB 0xA0
+693   FD8A 4D 69 63 72      DEFB "Micro Basic O.S. ANC SPAIN "
+693   FD8E 6F 20 42 61
+693   FD92 73 69 63 20
+693   FD96 4F 2E 53 2E
+693   FD9A 20 41 4E 43
+693   FD9E 20 53 50 41
+693   FDA2 49 4E 20
+694   FDA5 7F               DEFB 0x7F
+695   FDA6 31 39 38         DEFB "198"
+696   FDA9 B4               DEFB 0xB4
+697   FDAA              raof:
+698   FDAA D7               RST CALROM1
+699   FDAB 20 00            DEFW NEXCHA
+700   FDAD CD B7 05         CALL 0x05B7
+701   FDB0 F3               DI
+702   FDB1 3E 3E            LD A,0x3E
+703   FDB3 ED 47            LD I,A
+704   FDB5 ED 56            IM 1
+705   FDB7 FB               EI
+706   FDB8 C3 C1 05         JP 0x05C1
+707   FDBB              raon:
+708   FDBB D7               RST CALROM1
+709   FDBC 20 00            DEFW NEXCHA
+710   FDBE CD B7 05         CALL 0x05B7
+711   FDC1 F3               DI
+712   FDC2 21 4A F7         LD HL,vecin
+713   FDC5 11 69 FE         LD DE,0xFE69
+714   FDC8 01 03 00         LD BC,0x0003
+715   FDCB ED B0            LDIR
+716   FDCD 3E 09            LD A,0x09
+717   FDCF ED 47            LD I,A
+718   FDD1 ED 5E            IM 2
+719   FDD3 FB               EI
+720   FDD4 C3 C1 05         JP 0x05C1
+721   FDD7              trac0:
+722   FDD7 00               DEFB 0x0
+723   FDD8              inter:
+724   FDD8 FF               RST 0x038
+725   FDD9 F3               DI
+726   FDDA F5               PUSH AF
+microbasic.asm(727): warning: Accessing low memory address 0x0000, is it ok?: LD A,(0x0000)   
+727   FDDB 3A 00 00         LD A,(0x0000)   ; Identify which ROM is active
+728   FDDE FE E1            CP 0xE1
+729   FDE0 20 03            JR NZ,rom1      ; If we are in ROM2, just exit from ISR
+730   FDE2 F1               POP AF
+731   FDE3 FB               EI
+732   FDE4 C9               RET
+733   FDE5              rom1:
+734   FDE5 E5               PUSH HL
+735   FDE6 D5               PUSH DE
+736   FDE7 C5               PUSH BC
+737   FDE8 3A D7 FD         LD A,(trac0)
+738   FDEB FE 00            CP 0x0
+739   FDED 20 27            JR NZ,trac4
+740   FDEF 3A 82 5C         LD A,(0x5C82)   ; ECHO-E Column &line number. End of input
+741   FDF2 FE 20            CP 0x20
+742   FDF4 20 6D            JR NZ,trac3
+743   FDF6 3A 83 5C         LD A,(0x5C83)   ;
+744   FDF9 FE 17            CP 0x17
+745   FDFB 20 66            JR NZ,trac3
+746   FDFD 21 08 5C         LD HL,0x5C08    ; Last key pressed
+747   FE00 7E               LD A,(HL)
+748   FE01 FE 0C            CP 0x0C
+749   FE03 28 5E            JR Z,trac3
+750   FE05 21 04 5C         LD HL,0x5C04
+751   FE08 7E               LD A,(HL)
+752   FE09 FE 0D            CP 0x0D
+753   FE0B 28 04            JR Z,twrit
+754   FE0D FE FF            CP 0xFF
+755   FE0F 20 52            JR NZ,trac3
+756   FE11              twrit:
+757   FE11 3E 04            LD A,0x04
+758   FE13 32 D7 FD         LD (trac0),A
+759   FE16              trac4:
+760   FE16 3A D7 FD         LD A,(trac0)
+761   FE19 3D               DEC A
+762   FE1A 32 D7 FD         LD (trac0),A
+763   FE1D 2A 49 5C         LD HL,(0x5C49)
+764   FE20 11 0A 00         LD DE,0x000A
+765   FE23 19               ADD HL,DE
+766   FE24 01 10 FC         LD BC,0xFC10
+767   FE27 CD 4A FE         CALL trac1
+768   FE2A FE 03            CP 0x03
+769   FE2C 28 35            JR Z,trac3
+770   FE2E 01 9C FF         LD BC,0xFF9C
+771   FE31 CD 4A FE         CALL trac1
+772   FE34 FE 02            CP 0x02
+773   FE36 28 2B            JR Z,trac3
+774   FE38 01 F6 FF         LD BC,0xFFF6
+775   FE3B CD 4A FE         CALL trac1
+776   FE3E FE 01            CP 0x01
+777   FE40 28 21            JR Z,trac3
+778   FE42 01 FF FF         LD BC,0xFFFF
+779   FE45 CD 4A FE         CALL trac1
+780   FE48 18 19            JR trac3
+781   FE4A              trac1:
+782   FE4A AF               XOR A
+783   FE4B              trac2:
+784   FE4B 09               ADD HL,BC
+785   FE4C 3C               INC A
+786   FE4D 38 FC            JR C,trac2
+787   FE4F ED 42            SBC HL,BC
+788   FE51 3D               DEC A
+789   FE52 C6 30            ADD A,0x30
+790   FE54 32 08 5C         LD (0x5C08),A
+791   FE57 3A 3B 5C         LD A,(0x5C3B)
+792   FE5A CB EF            SET 5,A
+793   FE5C 32 3B 5C         LD (0x5C3B),A
+794   FE5F 3A D7 FD         LD A,(trac0)
+795   FE62 C9               RET
+796   FE63              trac3:
+797   FE63 C1               POP BC
+798   FE64 D1               POP DE
+799   FE65 E1               POP HL
+800   FE66 F1               POP AF
+801   FE67 FB               EI
+802   FE68 C9               RET
+803   FE69              lbjp:
+804   FE69 FE FE FE FE      DEFB 0xFE,0xFE,0xFE,0xFE
+805   FE6D              ; Screen$
+806   FE6D              ; gap
+807   FE6D 00 00 00...      DS 0xFEF0-$
+808   FEF0              rsave:
+809   FEF0 3E F8            LD A,0xF8
+810   FEF2 18 0A            JR sacon
+811   FEF4              rload:
+812   FEF4 3E EF            LD A,0xEF
+813   FEF6 18 06            JR sacon
+814   FEF8              rvery:
+815   FEF8 3E D6            LD A,0xD6
+816   FEFA 18 02            JR sacon
+817   FEFC              rmerg:
+818   FEFC 3E D5            LD A,0xD5
+819   FEFE              sacon:
+820   FEFE 01 0A 00         LD BC,0x0A
+821   FF01 11 39 FF         LD DE,texcm
+822   FF04 18 1A            JR ampli
+823   FF06              rmove:
+824   FF06 3E D1            LD A,0xD1
+825   FF08 18 06            JR mocon
+826   FF0A              reras:
+827   FF0A 3E D2            LD A,0xD2
+828   FF0C 18 02            JR mocon
+829   FF0E              rform:
+830   FF0E 3E D0            LD a,0xD0
+831   FF10              mocon:
+832   FF10 11 43 FF         LD DE, texsa
+833   FF13 01 09 00         LD BC,0x9
+834   FF16 18 08            JR ampli
+835   FF18              ropen:
+836   FF18 3E D3            LD A,0xD3
+837   FF1A 11 4C FF         LD DE,texop
+838   FF1D 01 0B 00         LD BC, 0x0B
+839   FF20              ampli:
+840   FF20 D5               PUSH DE
+841   FF21 C5               PUSH BC
+842   FF22 12               LD (DE),A
+843   FF23 D7               RST CALROM1
+844   FF24 20 00            DEFW NEXCHA
+845   FF26 C1               POP BC
+846   FF27 C5               PUSH BC
+847   FF28 0B               DEC BC
+848   FF29 D7               RST CALROM1
+849   FF2A 55 16            DEFW 0x1655
+850   FF2C C1               POP BC
+851   FF2D D1               POP DE
+852   FF2E EB               EX DE,HL
+853   FF2F ED B0            LDIR
+854   FF31 EB               EX DE,HL
+855   FF32 2B               DEC HL
+856   FF33 22 5B 5C         LD (0x5C5B),HL
+857   FF36 C3 F0 01         JP 0x01F0
+858   FF39              texcm:
+859   FF39 F8               DEFB 0xF8
+860   FF3A              texmd:
+861   FF3A 2A 22 6D 22      DEFB "*",0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+861   FF3E 3B 31 3B 22
+861   FF42 22
+862   FF43              texsa
+863   FF43 D1 22 6D 22      DEFB 0xD1,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+863   FF47 3B 31 3B 22
+863   FF4B 22
+864   FF4C              texop:
+865   FF4C D3 38 3B 22      DEFB 0xD3,"8",0x3B,0x22,"m",0x22,0x3B,"1",0x3B,0x22,0x22
+865   FF50 6D 22 3B 31
+865   FF54 3B 22 22
+866   FF57
 # file closed: microbasic.asm

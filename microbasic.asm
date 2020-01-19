@@ -216,7 +216,286 @@ rren:
     JP 0x5C1
 renum:
     CALL 0x1E99
-
+    PUSH BC
+    POP HL
+    LD (0x5B02),HL
+    CALL 0x1E99
+    PUSH BC
+    POP HL
+    LD (0x5B00),HL
+    LD A,H
+    OR L
+    RET Z
+    LD HL,(0x5B02)
+    LD A,H
+    OR L
+    RET Z
+    LD HL,(0x5C53)
+    LD DE,(0x5B00)
+nxtln:
+    CALL chck
+    JR NC,fndgt
+    LD B,(HL)
+    LD (HL),D
+    INC HL
+    LD C,(HL)
+    LD (HL),E
+    INC HL
+    LD (HL),C
+    INC (HL)
+    LD (HL),B
+    INC HL
+    PUSH HL
+    LD HL,(0x5B02)
+    ADD HL,DE
+    EX DE,HL
+    POP HL
+    CALL eol
+    JR nxtln
+fndgt:
+    LD HL,(0x5C33)
+    INC HL
+    INC HL
+    INC HL
+    INC HL
+srch:
+    CALL fnd
+    JP NC,rstr
+    LD D,H
+    LD E,L
+    LD B,0x0
+nxtdg:
+    INC B
+    INC HL
+    LD A,(HL)
+    CP ","
+    JR NZ,cntn
+fndnx:
+    EX DE,HL
+cntn:
+    JR srch
+    CP 0x0E ; 14 id of floating point
+    JR NZ,nxtdg
+    INC HL
+    INC HL
+    INC HL
+    INC HL
+    INC HL
+    INC HL
+    LD A,(HL)
+    CP ":"
+    JR Z,fou
+    CP 0x0D ; 13
+    JR NZ,fndnx
+fou:
+    LD A,B
+cmpr:
+    CP 0X04
+    JR Z,clclt
+    JR NZ,fndnx
+    PUSH DE
+    LD H,D
+    LD L,E
+    PUSH AF
+    LD A,"0"
+    CALL 0X0F00
+    POP AF
+    INC A
+    POP DE
+    JR cmpr
+clclt:
+    LD B,D
+    DEC SP      ; LD C,E
+    PUSH DE
+    LD HL,0x0000
+    LD DE,0x03E8    ; 1000
+    CALL ladd
+    LD DE, 0x0064   ; 100
+    CALL ladd
+    LD E,0x0A       ; 10
+    CALL ladd
+    LD A,(BC)
+    SUB "0"
+    LD E,A
+    ADD HL,DE
+    LD B,H
+    LD C,L
+    LD HL,(0x5C53)
+fndln:
+    INC HL
+    INC HL
+eop:
+    CALL chck
+    JR C,xsts
+    POP HL
+    JR srch
+xsts:
+    LD A,(HL)
+    CP C
+    JR NC,nxtbt
+    INC HL
+wrng:
+    INC HL
+    CALL eol 
+    JR fndln
+nxtbt:
+    INC HL
+    LD A,(HL)
+    CP B
+    JR C,wrng
+    DEC HL
+    DEC HL
+    LD C,(HL)
+    DEC HL
+    LD H,(HL)
+    LD L,C
+    POP BC
+    PUSH BC
+    PUSH HL
+    LD DE,0X03E8 ; 1000
+    CALL nsrt
+    LD DE,0x0064
+    CALL nsrt
+    LD E,0x0A
+    CALL nsrt
+    LD E,1
+    CALL nsrt
+    INC BC
+    SUB A
+    LD (BC),A
+    INC BC
+    LD (BC),A
+    INC BC
+    POP HL
+    LD A,L
+    LD (BC),A
+    INC BC
+    LD A,H
+    LD (BC),A
+    INC BC
+    SUB A
+    LD (BC),A
+    POP HL
+    JP srch
+rstr:
+    LD HL,(0x5C53)
+fllw:
+    INC HL
+    INC HL
+    CALL chck
+    RET NC 
+    LD B,H
+    LD C,L
+    CALL eol 
+    PUSH HL
+    AND A
+    SBC HL,BC
+    DEC HL
+    DEC HL
+    LD A,L
+    LD (BC),A
+    INC BC
+    LD A,H
+    LD (BC),A
+    POP HL
+    JR fllw
+nsrt:
+    LD A,0x30   ; +40
+sbtr:
+    AND A
+    SBC HL,DE
+    JR C,poke
+    INC A
+    JR sbtr
+poke:
+    ADD HL,DE
+    LD (BC),A
+    INC BC
+    RET
+ladd:
+    LD A,(BC)
+    INC BC
+    SUB 0x2F    ;  +47
+repea:
+    DEC A
+    RET Z 
+    ADD HL,DE
+    JR repea
+fnd:
+    LD A,(HL)
+    CALL chck
+    RET NC 
+    CP 0xEA
+    JR NZ,ntrem
+fntr:
+    INC HL
+    LD A,(HL) 
+    CP 0x0D     ; 13
+    JR NZ,fntr
+ncrs:
+    INC HL
+    INC HL
+    INC HL
+    INC HL
+    INC HL
+    JR fnd
+ntrem:
+    CP 0x22
+    JR NZ,nstrg
+nxchr:
+    INC HL
+    LD A,(HL)
+    CP 0X22
+    JR NZ, nxchr
+    INC HL
+    JR fnd
+nstrg:
+    CP 0x0D
+    JR Z,ncrs
+    CALL 0x18B6
+    JR Z,fnd
+    CP 0xED
+    JR Z,chkdg
+    CP 0xEC
+    JR Z,chkdg
+    CP 0xF7
+    JR Z,chkdg
+    CP 0xF0
+    JR Z,chkdg
+    CP 0xE5
+    JR Z,chkdg
+    CP 0xE1
+    JR Z,chkdg
+    CP 0xCA
+    JR Z,chkdg
+    INC HL
+    JR fnd
+chkdg:
+    INC HL
+    LD A,(HL) 
+    CP 0x30
+    JR C,fnd ; JR Z,fnd
+    CP 0x3A
+    JR NC,fnd
+    RET
+eol:
+    LD A,(HL) 
+again:
+    CALL 0x18B6
+    JR Z,again
+    CP 0x0D
+    INC HL
+    JR NZ,eol
+chck:
+    PUSH HL
+    PUSH DE
+    ;LD DE,(0x4B5B)
+    DEFB 0xED,0x5B,0x4B,0x5C
+    AND A
+    SBC HL,DE
+    POP DE
+    POP HL
+    RET
 
 ; gap  DEL. Command
     DS 0xFC7C-$,0
