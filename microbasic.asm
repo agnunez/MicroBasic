@@ -74,7 +74,7 @@ rtab:		  ; command code start address table
     DEFW rren
     DEFW rnew
     DEFW rtr
-    DEFW rdel
+    DEFW rren
     DEFW rfnd
     DEFW rcha
     DEFW raof
@@ -147,9 +147,7 @@ comm:
 nexts:
 roner:
 offer:
-rren:
 rtr:
-rdel:
 rcopy:
 
     DS 0xFA32-$,0  // 64050
@@ -202,31 +200,86 @@ rtv:
     LD A,0x00
     LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
     JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
+; gap  REN. Command
+    DS 0xFADA-$,0
+rren:
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C7A
+    CALL 0x5B7
+    LD A,(0x5CB0)
+    CP 6
+    JP NZ,rdel
+    RST CALROM1
+    DEFW renum
+    JP 0x5C1
+renum:
+    CALL 0x1E99
+
+
+; gap  DEL. Command
+    DS 0xFC7C-$,0
+rdel:
+    RST CALROM1
+    DEFW delet
+    JP 0x05C1
+delet:
+    CALL 0x1E99
+    PUSH BC
+    CALL 0x1E99
+    PUSH BC
+    POP HL
+    POP DE
+    LD A,H
+    OR L
+    RET Z
+    LD A,D
+    OR E
+    RET Z
+    PUSH DE
+    CALL 0x196E
+    EX (SP),HL
+    INC HL
+    CALL 0x196E
+    POP DE
+    AND A
+    SBC HL, DE
+    RET Z
+    RET C
+    LD B,H
+    LD C,L
+    ADD HL,DE
+    EX DE,HL
+    CALL 0x19E8
+    RET
+
+
 
 ; gap
     DS 0xFCA9-$,0
 rfnd:               ; .FND Find string in Basic lines command 
-    RST 0x10
+    RST CALROM1
     DEFW NEXCHA     ; Parse a character
-    RST 0x10        ; Parse to end of string
+    RST CALROM1        ; Parse to end of string
     DEFW 0x1C8C
     CALL 0x05B7     ; Exit editor
-    RST 0x10
+    RST CALROM1
     DEFW sr0        ; call sr0 in ROM1 0xFCE3
     JP 0x05C1       ; command exit
 rcha:               ; .CHA Change string command
-    RST 0x10        
+    RST CALROM1        
     DEFW NEXCHA     ; Parse next character
-    RST 0x10
+    RST CALROM1
     DEFW 0x1C8C     ; Parse to end of string in ROM1
     CP 0xCC
     JP NZ,0x01F0    ; Error if  we do not have a 'TO' separator    
-    RST 0x10
+    RST CALROM1
     DEFW NEXCHA     ; Next character
-    RST 0x10        ; Parse a character string
+    RST CALROM1        ; Parse a character string
     DEFW 0x1C8C
     CALL 0x05B7     ; Exit editor
-    RST 0x10        ; call ch0 with ROM1
+    RST CALROM1        ; call ch0 with ROM1
     DEFW ch0
     JP 0x05C1       ; Command exit
 ch0:
@@ -322,7 +375,7 @@ sr9:
     POP HL
     CALL 0x1855
     LD A,0x0D
-    RST 0x10
+    RST CALROM1
     JR sr2
 ch1:
     LD A,E
@@ -362,10 +415,8 @@ pomsg:
     DEFB 0x7F
     DEFB "198"
     DEFB 0xB4
-; gap
-    DS 0xFDAA-$,0
 raof:
-    RST 0x10
+    RST CALROM1
     DEFW NEXCHA
     CALL 0x05B7
     DI
@@ -375,7 +426,7 @@ raof:
     EI
     JP 0x05C1
 raon:
-    RST 0x10
+    RST CALROM1
     DEFW NEXCHA
     CALL 0x05B7
     DI
@@ -472,6 +523,7 @@ trac3:
     RET
 lbjp:
     DEFB 0xFE,0xFE,0xFE,0xFE
+; Screen$ 
 ; gap
     DS 0xFEF0-$
 rsave:
@@ -509,12 +561,12 @@ ampli:
     PUSH DE
     PUSH BC
     LD (DE),A
-    RST 0x10
+    RST CALROM1
     DEFW NEXCHA
     POP BC
     PUSH BC
     DEC BC
-    RST 0x10
+    RST CALROM1
     DEFW 0x1655
     POP BC
     POP DE

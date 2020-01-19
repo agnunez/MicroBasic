@@ -21,10 +21,9 @@ comm: equ 0x0000F823
 nexts: equ 0x0000F823
 roner: equ 0x0000F823
 offer: equ 0x0000F823
-rren: equ 0x0000F823
+rren: equ 0x0000FADA
 rnew: equ 0x0000FA32
 rtr: equ 0x0000F823
-rdel: equ 0x0000F823
 rfnd: equ 0x0000FCA9
 rcha: equ 0x0000FCB8
 raof: equ 0x0000FDAA
@@ -50,6 +49,9 @@ retu: equ 0x0000FA3B
 rtu: equ 0x0000FA5F
 retv: equ 0x0000FA3E
 pomsg: equ 0x0000FD89
+rdel: equ 0x0000FC7C
+renum: equ 0x0000FAF1
+delet: equ 0x0000FC82
 sr0: equ 0x0000FCE3
 ch0: equ 0x0000FCD2
 sr1: equ 0x0000FCED
