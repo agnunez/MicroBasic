@@ -4,21 +4,33 @@
 ; Code: NonoComercial Creative Commons Internationa (CC BY-NC 4.0)
 
     DEVICE ZXSPECTRUM48
-    ORG 0xF733  ; Load binary in 63283
-rtop EQU $-1
-    LD HL,rtop      ; Load RAMTOP  with our firmware start address
-    LD (0x5CB2),HL  ; RAMTOP System Variable address
-    JP rtv          ; jump to initialization routine
+; ROM1  rountines entry points
+
+GETCHA EQU 0x0018
+NEXCHA EQU 0x0020  ;
+ 
+; ROM2 (Interface 1) rountines entry points
+CALROM1  EQU 0x10    ; Call a ROM1 routine from ROM2
+
+; System Variables
 var01 EQU 0x5C81
 var02 EQU 0x5CB0
 inichad EQU 0x5C5D
-CALBAS  EQU 0x10    ; Call a ROM1 routine from ROM2
+RAMTOP EQU 0x5CB2
 VECTOR  EQU 0x5CB7  ; Hook address for command extension while syntax error found
 grchbuf EQU 0xFF58
+
+   ORG 0xF733  ; Load binary in 63283
+rtop EQU $-1
+    LD HL,rtop      ; Load RAMTOP  with our firmware start address
+    LD (RAMTOP),HL  ; RAMTOP System Variable address
+    JP rtv          ; jump to initialization routine
+;ROM1 routines entry points
+
 main:
 exten:              ; Entry point with ROM2 active
-    RST CALBAS      ; ROM2 call ROM1 at def word below
-    DEFW 0x0018     ; GET-CHAR from ROM1 into A
+    RST CALROM1      ; ROM2 call ROM1 at def word below
+    DEFW GETCHA     ; GET-CHAR from ROM1 into A
     LD (var01),HL
     LD C,0
     LD HL, stab
@@ -82,8 +94,8 @@ rlibre:
 other:
     PUSH BC
     PUSH HL
-    RST CALBAS // Call 0x0020 of ROM1 from ROM2
-    DEFW 0x0020  // NEXT-CHAR from ROM1 incrementing CH-ADD
+    RST CALROM1 // Call NEXCHA of ROM1 from ROM2
+    DEFW NEXCHA  // NEXT-CHAR from ROM1 incrementing CH-ADD
     POP HL
     POP BC
 othcm:
@@ -103,8 +115,8 @@ nmat1:
     PUSH HL
     LD HL,(var01)
     LD (inichad),HL
-    RST CALBAS
-    DEFW 0x0018 // GET-CHAR at ROM1
+    RST CALROM1
+    DEFW GETCHA         ; GET-CHAR at ROM1
     POP HL
     INC C
     JR othcm
@@ -142,10 +154,10 @@ rcopy:
 
     DS 0xFA32-$,0  // 64050
 rnew:
-    RST CALBAS
-    DEFW 0x0020     ; Call NEXT-CHAR at ROM1. Test for keypress, incrementing CH-ADD
+    RST CALROM1
+    DEFW NEXCHA     ; Call NEXT-CHAR at ROM1. Test for keypress, incrementing CH-ADD
     CALL 0x05B7     ; ST-END Confirm end of statement and exit from ROM2 into ROM1 editor
-    RST CALBAS
+    RST CALROM1
     DEFW new        ; copy NEW from ROM1 into Graphic character buffer
 retu:
     JP rtu          ; Jump over NEW copy code and resume
@@ -195,7 +207,7 @@ rtv:
     DS 0xFCA9-$,0
 rfnd:               ; .FND Find string in Basic lines command 
     RST 0x10
-    DEFW 0x0020     ; Parse a character
+    DEFW NEXCHA     ; Parse a character
     RST 0x10        ; Parse to end of string
     DEFW 0x1C8C
     CALL 0x05B7     ; Exit editor
@@ -204,13 +216,13 @@ rfnd:               ; .FND Find string in Basic lines command
     JP 0x05C1       ; command exit
 rcha:               ; .CHA Change string command
     RST 0x10        
-    DEFW 0x0020     ; Parse next character
+    DEFW NEXCHA     ; Parse next character
     RST 0x10
     DEFW 0x1C8C     ; Parse to end of string in ROM1
     CP 0xCC
     JP NZ,0x01F0    ; Error if  we do not have a 'TO' separator    
     RST 0x10
-    DEFW 0x0020     ; Next character
+    DEFW NEXCHA     ; Next character
     RST 0x10        ; Parse a character string
     DEFW 0x1C8C
     CALL 0x05B7     ; Exit editor
@@ -354,7 +366,7 @@ pomsg:
     DS 0xFDAA-$,0
 raof:
     RST 0x10
-    DEFW 0x0020
+    DEFW NEXCHA
     CALL 0x05B7
     DI
     LD A,0x3E
@@ -364,7 +376,7 @@ raof:
     JP 0x05C1
 raon:
     RST 0x10
-    DEFW 0x0020
+    DEFW NEXCHA
     CALL 0x05B7
     DI
     LD HL,vecin
@@ -382,9 +394,9 @@ inter:
     RST 0x038
     DI
     PUSH AF
-    LD A,(0x0000)
+    LD A,(0x0000)   ; Identify which ROM is active
     CP 0xE1
-    JR NZ,rom1
+    JR NZ,rom1      ; If we are in ROM2, just exit from ISR
     POP AF
     EI
     RET
@@ -395,13 +407,13 @@ rom1:
     LD A,(trac0)
     CP 0x0
     JR NZ,trac4
-    LD A,(0x5C82)
+    LD A,(0x5C82)   ; ECHO-E Column &line number. End of input
     CP 0x20
     JR NZ,trac3
-    LD A,(0x5C83)
+    LD A,(0x5C83)   ;
     CP 0x17
     JR NZ,trac3
-    LD HL,0x5C08
+    LD HL,0x5C08    ; Last key pressed
     LD A,(HL)
     CP 0x0C
     JR Z,trac3
@@ -498,7 +510,7 @@ ampli:
     PUSH BC
     LD (DE),A
     RST 0x10
-    DEFW 0x0020
+    DEFW NEXCHA
     POP BC
     PUSH BC
     DEC BC

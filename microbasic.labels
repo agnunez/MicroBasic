@@ -1,11 +1,14 @@
-rtop: equ 0x0000F732
-rtv: equ 0x0000FA7B
+GETCHA: equ 0x00000018
+NEXCHA: equ 0x00000020
+CALROM1: equ 0x00000010
 var01: equ 0x00005C81
 var02: equ 0x00005CB0
 inichad: equ 0x00005C5D
-CALBAS: equ 0x00000010
+RAMTOP: equ 0x00005CB2
 VECTOR: equ 0x00005CB7
 grchbuf: equ 0x0000FF58
+rtop: equ 0x0000F732
+rtv: equ 0x0000FA7B
 main: equ 0x0000F73C
 exten: equ 0x0000F73C
 stab: equ 0x0000F74D
