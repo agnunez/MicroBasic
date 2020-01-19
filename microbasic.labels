@@ -23,7 +23,7 @@ roner: equ 0x0000F823
 offer: equ 0x0000F823
 rren: equ 0x0000FADA
 rnew: equ 0x0000FA32
-rtr: equ 0x0000F823
+rtr: equ 0x0000FA9F
 rfnd: equ 0x0000FCA9
 rcha: equ 0x0000FCB8
 raof: equ 0x0000FDAA
@@ -49,6 +49,11 @@ retu: equ 0x0000FA3B
 rtu: equ 0x0000FA5F
 retv: equ 0x0000FA3E
 pomsg: equ 0x0000FD89
+nogre: equ 0x0000FAAD
+ftr: equ 0x0000FAB2
+trer: equ 0x0000FAAF
+traf: equ 0x0000FAC5
+sense: equ 0x0000FAD5
 rdel: equ 0x0000FC7C
 renum: equ 0x0000FAF1
 nxtln: equ 0x0000FB11

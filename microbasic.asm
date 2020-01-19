@@ -147,7 +147,6 @@ comm:
 nexts:
 roner:
 offer:
-rtr:
 rcopy:
 
     DS 0xFA32-$,0  // 64050
@@ -200,8 +199,45 @@ rtv:
     LD A,0x00
     LD (0x5C91),A   ; P-FLAGS 01011000 (Paper 9 temp, Ink 9 temp, Inverse permanent)
     JP 0x12A9       ; MAIN-1 tranfer back control to ROM1 main execution loop
-; gap  REN. Command
-    DS 0xFADA-$,0
+; .TR command
+rtr:
+    RST CALROM1
+    DEFW NEXCHA
+    CP ">"
+    JR NZ,nogre
+    LD A,9
+    LD (0x5CB0),A
+    JR ftr 
+nogre:
+    CP "<"
+trer:
+    JP NZ,0x01F0
+ftr:
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C8C
+    CP ","
+    JR NZ,trer
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C82
+    CALL 0x05B7
+traf:
+    RST CALROM1
+    DEFW 0x1E99
+    PUSH BC
+    RST CALROM1
+    DEFW 0x2BF1
+    POP HL
+    LD A,(0x5CB0)
+    CP 0x08
+    JR Z,sense
+    EX DE,HL
+sense:
+    LDIR
+    JP 0x05C1
 rren:
     RST CALROM1
     DEFW NEXCHA
@@ -497,8 +533,6 @@ chck:
     POP HL
     RET
 
-; gap  DEL. Command
-    DS 0xFC7C-$,0
 rdel:
     RST CALROM1
     DEFW delet
@@ -533,10 +567,6 @@ delet:
     CALL 0x19E8
     RET
 
-
-
-; gap
-    DS 0xFCA9-$,0
 rfnd:               ; .FND Find string in Basic lines command 
     RST CALROM1
     DEFW NEXCHA     ; Parse a character
