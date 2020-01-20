@@ -145,12 +145,133 @@ found:
 
 comm:
 nexts:
-roner:
-offer:
 rcopy:
-
-    DS 0xFA32-$,0  // 64050
-rnew:
+    DS 0xF941-$,0  
+roner:
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C82
+    CALL 0x05B7
+    LD HL,(0x5C3D)
+    LD BC,error
+    LD (HL),C
+    INC HL
+    LD (HL),B
+    RST CALROM1
+    DEFW 0x1E99
+    LD(lentr),BC
+    LD HL,erl
+    RST CALROM1
+    DEFW varlk
+    JR NC,varnx
+    LD HL,erl
+    CALL cevar
+varnx:
+    LD HL,ern
+    RST CALROM1
+    DEFW varlk
+    JR NC,varex
+    LD HL,ern
+    CALL cevar
+varex:
+    JP 0x05C1
+varlk:
+    PUSH HL
+    LD HL,(0x5C5D)
+    LD (var01),HL
+    POP HL
+    LD (0x5C5D),HL
+    CALL 0x28B2
+    PUSH AF
+    PUSH HL
+    LD HL,(var01)
+    LD (0x5C5D),HL
+    POP HL
+    POP AF
+    RET
+cevar:
+    CALL varco
+    LD A,0
+    RST CALROM1
+    DEFW 0x2D28     ; A -> floating point
+    LD A,(0x5C71)
+    SET 1,A
+    LD (0x5C71),A
+    LD HL,0x5B00
+    LD (0x5C4D),HL
+    RST CALROM1
+    DEFW 0x2AFF     ; LET in basic to assign a value
+    RET
+varlt:              ; Set ERL with line number of error
+    PUSH HL         ; Set ERN with error number
+    CALL varco
+    POP HL
+    CALL varlk
+    LD (0x5C4D),HL  ; Name pointer
+    LD A,(0x5C71)
+    RES 1,A
+    LD (0x5C71),A
+    CALL 0x2AFF     ; LET assign
+    RET
+varco:
+    LD DE,0x5B00
+    LD BC,0x0004
+    LDIR
+    RET
+lentr:
+    DEFW 0x0000
+erl:
+    DEFB "ERL"
+    DEFB 0xE
+ern:
+    DEFB "ERN"
+    DEFB 0xE
+error:
+    LD A,(0x5C3A)
+    CP 0xFF         ; Exit when end of program
+    JR Z,noerr
+    CP 0x0C         ; Exit when SCROLL BREAK
+    JR Z,noerr
+    CP 0x08         ; Exit when STOP
+    JR Z,noerr
+    CP 0x14         ; Exit when BREAK
+    JR Z,noerr
+    LD HL,error
+    PUSH HL
+    PUSH AF
+    LD A,(0x5C3A)
+    INC A
+    CALL 0x2D28
+    LD HL,ern
+    CALL varlt
+    POP AF
+    LD HL,(0x5C45)
+    LD (0x5C49),HL
+    PUSH HL
+    POP BC
+    CALL 0x2D2B
+    LD HL,erl
+    CALL varlt
+    LD HL,0x0000
+    LD (0x5C44),HL
+    LD HL,(lentr)
+    LD (0x5C42),HL
+    JP 0x1B9E
+noerr:
+    JP 0x1303
+    RET
+offer:
+    RST CALROM1
+    DEFW NEXCHA
+    CALL 0x05B7
+    LD HL,(0x5C3D)
+    LD BC,0x1303
+    LD (HL),C
+    INC HL
+    LD (HL),B
+    JP 0x05C1
+rnew:               
     RST CALROM1
     DEFW NEXCHA     ; Call NEXT-CHAR at ROM1. Test for keypress, incrementing CH-ADD
     CALL 0x05B7     ; ST-END Confirm end of statement and exit from ROM2 into ROM1 editor
