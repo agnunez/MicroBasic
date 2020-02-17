@@ -143,10 +143,192 @@ found:
     LD (var02),A
     JP (HL)
 
+; MicroDrives commands
+
+; NEXT# Command
+nexts:  
+    RST CALROM1
+    DEFW NEXCHA
+    CP '#'
+    JR NZ,romerr
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x01C82
+    CALL 0x05B7
+    RST CALROM1
+    DEFW nextr
+    JP 0x05C1
+
 comm:
-nexts:
-rcopy:
-    DS 0xF941-$,0  
+    RST CALROM1
+    DEFW NEXCHA
+    CP '#'
+    JR NZ,romerr
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C82
+    CP ','
+    JR Z,r1
+romerr:
+    RST 0x20
+    NOP
+r1:
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C82
+    CP ";"
+    JR NZ,romerr
+    RST CALROM1
+    DEFW NEXCHA
+    RST CALROM1
+    DEFW 0x1C8C
+    CALL 0x05B7
+runre:
+    RST CALROM1
+    DEFW oldr
+    JP 0x05C1
+
+nextr:
+    EXX
+    PUSH HL
+    EXX
+    CALL ccha
+    JR Z,valid
+    EXX
+    POP HL
+    EXX
+    RET
+valid:
+    XOR A
+    JR reco
+find:
+    LD A,(IX+0x0D)
+    INC A
+reco:
+    LD (IX+0x0D),A
+    RST 8
+    DEFB 0x27
+    LD A,(IX+0x43)
+    BIT 1,A
+    JR Z,find
+    XOR A
+    RST 8
+    DEFB 0x21
+    EI
+    LD A,(IX+0x0D)
+    PUSH AF
+    LD A,0xFF
+    LD (IX+0x18),A
+    LD A,(IX+0x45)
+    LD (IX+0x0B),A
+    LD A,(IX+0x46)
+    LD (IX+0x0C),A
+    XOR A
+    LD (IX+0x43),A
+    LD (IX+0x45),A
+    LD (IX+0x46),A
+    LD A,(IX+0x29)
+    LD (IX+0x0D),A
+    LD A,1
+    RST 8
+    DEFB 0x21
+    RST 8
+    DEFB 0x2A
+    XOR A
+    RST 8
+    DEFB 0x21
+    POP AF
+    LD (IX+0D),A
+    JR exit
+oldr:
+    EXX
+    PUSH HL
+    EXX
+    CALL 0X2BF1
+    PUSH BC
+    PUSH DE
+    CALL 0x1E94
+    PUSH AF
+    CALL ccha
+    JR NZ,nomic
+    POP AF
+    LD (IX+0x0D),A
+    LD A,(var02)
+    CP 2
+    JR NZ,selre
+    LD A,1
+    RST 8
+    DEFB 0x21
+    RST 8
+    DEFB 0x28
+    JR stpm
+selre:
+    RST 8
+    DEFB 0x27
+stpm:
+    LD A,0
+    RST 8
+    DEFB 0x21
+    EI
+    PUSH IX
+    POP HL
+    LD DE,0x0052
+    ADD HL,DE
+    POP DE
+    POP BC
+    LD A,(var02)
+    CP 1
+    JR Z,rstor
+    CP 2
+    JR NZ,tranf
+    PUSH IX
+    POP HL
+tranf:
+    LDIR
+    XOR A
+    LD (IX+0x0B),A
+    LD (IX+0x0C),A
+exit:
+    EXX
+    POP HL
+    EXX
+    RET
+rstor:
+    EX DE,HL
+    LDIR
+    LD A,0xFF
+    LD (IX+0x18),A
+    LD A,(IX+0x29)
+    LD (IX+0x0D),A
+    LD A,1
+    RST 8
+    DEFB 0x21
+    RST 8
+    DEFB 0x2A
+    XOR A
+    RST 8
+    DEFB 0x21
+    EI
+    LD A,0xFE
+    LD (IX+0x18),A
+    JR exit
+nomic:
+    POP AF
+    POP DE
+    POP BC
+    JR exit
+ccha:
+    CALL 0x1E94
+    CALL 0x1601
+    LD HL,(0x5C51)
+    PUSH HL
+    POP IX
+    LD A,(IX+4)
+    CP 0x4D
+    RET
 roner:
     RST CALROM1
     DEFW NEXCHA
@@ -955,6 +1137,7 @@ lbjp:
     DEFB 0xFE,0xFE,0xFE,0xFE
 ; Screen$ 
 ; gap
+rcopy:
     DS 0xFEF0-$
 rsave:
     LD A,0xF8
